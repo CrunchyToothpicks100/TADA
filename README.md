@@ -16,6 +16,6 @@ Run the project
 python manage.py runserver
 ```
 
-Visit localhost:8000/testapp in your browser to see if it's working
+Visit localhost:8000 in your browser to see if it's working
 
-Edit HTML files in TADA\TADA
+Edit HTML files in TADA\candidates\templates
