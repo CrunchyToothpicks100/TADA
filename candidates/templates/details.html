@@ -1,0 +1,17 @@
+{% extends "master.html" %}
+
+{% block title %}
+    TADA - Candidate Details
+{% endblock %}
+
+{% block content %}
+    <h1>{{ mycandidate.user.get_full_name }}</h1>
+
+    <p>Phone: {{ mycandidate.phone }}</p>
+    <p>Likes guns: {{ mycandidate.likes_guns }}</p>
+    <p>Likes cars: {{ mycandidate.likes_cars }}</p>
+    <p>Likes games: {{ mycandidate.likes_games }}</p>
+    <p>Fruit preference: {{ mycandidate.fruit_preference }}</p>
+
+    <p>Back to <a href="/candidates">candidates</a></p>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "master.html" %}
+
+{% block title %}
+    TADA - All candidates
+{% endblock %}
+
+{% block content %}
+    <h1>Candidates</h1>
+    
+    <ul>
+    {% for x in mycandidates %}
+        <li><a href="details/{{ x.id }}/">{{ x.user.get_full_name }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <p><a href="/">Back to Home</a></p>
+{% endblock %}
