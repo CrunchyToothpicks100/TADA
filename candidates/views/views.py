@@ -29,19 +29,3 @@ def details(request, id):  #id comes from the URL
 def main(request):
     template = loader.get_template('main.html')
     return HttpResponse(template.render())
-
-# Good example for how context works
-def fruit(request):
-    template = loader.get_template('fruit.html')
-    context = {
-        'fruits': ['Apple', 'Banana', 'Cherry'],   
-    }
-    return HttpResponse(template.render(context, request))
-
-def login(request):
-    template = loader.get_template('login.html')
-    return HttpResponse(template.render())
-
-def signup(request):
-    template = loader.get_template('signup.html')
-    return HttpResponse(template.render())

@@ -1,0 +1,66 @@
+{% extends "master.html" %}
+
+{% block title %}TADA - Login{% endblock %}
+        
+{% block style %}
+nav {
+    border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 10px;
+    list-style-type: none;
+}
+
+body {
+    display: flex;
+        flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+{% endblock %}
+
+{% block content %}    
+<nav>
+    <ul>
+        <li><a href='/'>Home</a></li>
+        <li><a href='/about/'>About</a></li>
+        <li><a href='/signup/'>Sign Up</a></li>
+    </ul>        
+</nav>
+
+<div>
+    <h2>Sign In</h2>
+            
+    <form action="dashboard.html" method="post">  
+        <div>
+            <label for="email">Email: </label>
+             <input type="email" id="email" name="email" required>
+        </div>
+
+        <div>   
+            <label for="password">Password: </label>
+             <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit">Sign In</button>
+
+        <a href='/forgotpw/'>Forgot Password</a>
+    </form>
+
+    <p>
+        Don't have an account?
+        <a href='/signup/'>Sign Up</a>
+    </p>
+
+</div>
+
+{% endblock %}
