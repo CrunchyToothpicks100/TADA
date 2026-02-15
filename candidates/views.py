@@ -30,6 +30,7 @@ def main(request):
     template = loader.get_template('main.html')
     return HttpResponse(template.render())
 
+# Good example for how context works
 def fruit(request):
     template = loader.get_template('fruit.html')
     context = {
