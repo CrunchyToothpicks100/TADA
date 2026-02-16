@@ -12,7 +12,7 @@ Download 'Container Tools' and 'Docker' from your VS Code extensions
 
 Open a terminal and run these
 
-```powershell
+```
 git clone https://github.com/CrunchyToothpicks100/TADA/
 cd TADA
 ```
@@ -35,7 +35,7 @@ Replace `"copy_key_here"` with your new key (in quotes)
 
 Run this
 
-```powershell
+```
 docker compose build
 docker compose up -d
 ```
@@ -76,7 +76,7 @@ You will no longer need the venv file, the container has its own venv
 
 Anytime you need to refresh the webserver, run this
 
-```powershell
+```
 docker compose up -d --build
 ```
 
