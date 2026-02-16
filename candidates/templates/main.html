@@ -4,64 +4,45 @@
   TADA - Home
 {% endblock %}
 
+{% block style %}
+nav {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+nav ul {
+  display: flex;
+  justify-content: center;
+}
+
+nav ul li {
+  margin: 0 10px;
+  list-style-type: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+{% endblock %}
+
 {% block content %}
-  <style>
-    nav {
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 10px;
-    }
-    
-    nav ul {
-      display: flex;
-      justify-content: center;
-    }
-    
-    nav ul li {
-      margin: 0 10px;
-      list-style-type: none;
-    }
-    
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
-  </style>
-
-
-  <nav>
-
+<nav>
     <ul>
-        <!-- <li><a href='/'>Home</a></li> -->
-        <li><a href='/about/'>About</a></li>
-        <li><a href='/login/'>Login</a></li>
-        <li><a href='/signup/'>Sign Up</a></li>
+      <!-- <li><a href='/'>Home</a></li> -->
+      <li><a href='/about/'>About</a></li>
+      <li><a href='/login/'>Login</a></li>
+      <li><a href='/signup/'>Sign Up</a></li>
     </ul>
-
 </nav>
 
 <h1>Welcome to TADA!</h1>
 
-<h3>Candidates</h3>
+<h3><a href="/candidates/">Candidates</a></h3>
 
-<!--  
-  <p>
-    Check out all our <a href="candidates/">candidates</a>
-  </p>
-
-  <p>
-    Learn more <a href="about/">about us</a>
-  </p>
-
-  <p>
-    <a href="login/">Login</a>
-  </p>
-
-  <p>
-    <a href="signup/">Sign Up</a>
-  </p>
--->
+<h3><a href="/application/">Apply for job!</a></h3>
 {% endblock %}

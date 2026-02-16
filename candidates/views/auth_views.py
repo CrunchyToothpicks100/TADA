@@ -6,12 +6,14 @@ from candidates.models import Cand, User
 
 def login(request):
     template = loader.get_template('auth/login.html')
-    return HttpResponse(template.render())
+    return HttpResponse(template.render(request=request))
+
 
 def signup(request):
     template = loader.get_template('auth/signup.html')
-    return HttpResponse(template.render())
+    return HttpResponse(template.render(request=request))
+
 
 def forgotpw(request):
     template = loader.get_template('auth/forgotpw.html')
-    return HttpResponse(template.render())
+    return HttpResponse(template.render(request=request))

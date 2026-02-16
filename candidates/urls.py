@@ -9,5 +9,7 @@ urlpatterns = [
     path('candidates/details/<int:id>/', views.details, name='details'),
     path('login/', auth_views.login, name='login'),
     path('signup/', auth_views.signup, name='signup'),
-    path('forgotpw/', auth_views.forgotpw, name='forgotpw')
+    path('forgotpw/', auth_views.forgotpw, name='forgotpw'),
+    path('application/', views.application, name='application'),
+    path('submit_application/', views.submit_application, name='submit_application'),
 ]

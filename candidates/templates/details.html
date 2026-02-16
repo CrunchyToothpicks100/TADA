@@ -41,14 +41,11 @@
     </ul>
   </nav>
 
-  <h1>{{ mycandidate.user.get_full_name }}</h1>
+  <h1>{{ mycandidate }}</h1>
 
-  <p>Phone: {{ mycandidate.phone }}</p>
-  <p>Likes guns: {{ mycandidate.likes_guns }}</p>
-  <p>Likes cars: {{ mycandidate.likes_cars }}</p>
-  <p>Likes games: {{ mycandidate.likes_games }}</p>
-  <p>Fruit preference: {{ mycandidate.fruit_preference }}</p>
-
+  <p>Email: {{ mycandidate.user.email }}</p>
+  <p>LinkedIn: {{ mycandidate.linkedin_url }}</p>
+  <p>Resume: {{ mycandidate.resume_url }}</p>
   <p>
     Back to <a href="/candidates">candidates</a>
   </p>
