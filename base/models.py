@@ -2,9 +2,6 @@ from django.db import models
 import uuid
 
 
-
-
-
 class Company(models.Model):
     """
     A company inside your greater org (espresso repair, 2A startup, vehicle ads, etc).
@@ -57,6 +54,7 @@ class Candidate(models.Model):
     first_name = models.CharField(max_length=80, blank=True)
     last_name = models.CharField(max_length=80, blank=True)
     phone = models.CharField(max_length=40, blank=True)
+    linkedin_url = models.URLField(blank=True)
 
     # freeform summary + internal notes (admins)
     bio = models.TextField(blank=True)

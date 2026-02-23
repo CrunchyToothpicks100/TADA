@@ -1,0 +1,17 @@
+<!-- This page is basically an HTML template that other pages extend -->
+<!-- "title" and "content" are blocks that other pages can override -->
+
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8">
+        <title>{% block title %}{% endblock %}</title>
+        <style>{% block style %}{% endblock %}</style>
+    </head>
+    <body>
+
+    {% block content %}
+    {% endblock %}
+
+    </body>
+</html>

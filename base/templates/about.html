@@ -1,0 +1,56 @@
+{% extends 'master.html' %}
+
+{% block title %}
+  TADA - About Us
+{% endblock %}
+
+{% block style %}
+nav {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 10px;
+    list-style-type: none;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+{% endblock %}
+
+{% block content %}
+    <nav>
+        <ul>
+            <li>
+                <li><a href='/'>Home</a></li>
+                <!-- <li><a href='/about/'>About</a></li> -->
+                <li><a href='/login/'>Login</a></li>
+            </li>
+        </ul>
+    </nav>
+
+    <h1>About Us</h1>
+    <p>
+        Welcome to my first (second, actually) Django project! <br />
+        My name is Oliver. This is a talent acquisition database <br />
+        application (TADA!) that tracks candidates, processes <br />
+        candidate intake forms or questionnaires, and provides <br />
+        admin tools for sorting and filtering candidates. This <br />
+        project is for Full Bore Studios, and is shared with my <br />
+        scrum team members: Melvin De La Pena, Jonathan Kellhofer, <br />
+        and Brayden Wampler.
+    </p>
+    <!-- <p>Go back to <a href="/">home</a></p> -->
+{% endblock %}

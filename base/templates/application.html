@@ -1,0 +1,78 @@
+{% extends 'master.html' %}
+
+{% block title %}
+    TADA - Application
+{% endblock %}
+
+{% block style %}
+nav {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 10px;
+    list-style-type: none;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+{% endblock %}
+
+{% block content %}
+<nav>
+    <ul>
+        <li><a href='/'>Home</a></li>
+        <li><a href='/about/'>About</a></li>
+        <li><a href='/login/'>Login</a></li>
+    </ul>
+</nav>
+
+<h2>Job Application</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <div>
+        <label for="first_name">First Name: </label>
+        <input type="text" id="first_name" name="first_name" required>
+    </div>
+
+    <div>
+        <label for="last_name">Last Name: </label>
+        <input type="text" id="last_name" name="last_name" required>
+    </div>
+
+    <div>
+        <label for="email">Email: </label>
+        <input type="email" id="email" name="email" required>
+    </div>
+
+    <div>
+        <label for="phone">Phone: </label>
+        <input type="tel" id="phone" name="phone">
+    </div>
+
+    <div>
+        <label for="linkedin_url">LinkedIn URL: </label>
+        <input type="url" id="linkedin_url" name="linkedin_url">
+    </div>
+
+    <div>
+        <label for="bio">Short Bio: </label>
+        <textarea id="bio" name="bio" rows="4"></textarea>
+    </div>
+
+    <button type="submit">Submit Application</button>
+</form>
+{% endblock %}

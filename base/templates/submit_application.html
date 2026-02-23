@@ -1,0 +1,49 @@
+{% extends 'master.html' %}
+
+{% block title %}
+    TADA - Submitted Application
+{% endblock %}
+
+{% block style %}
+nav {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 10px;
+    list-style-type: none;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+{% endblock %}
+
+{% block content %}
+<nav>
+    <ul>
+        <li><a href='/'>Home</a></li>
+        <li><a href='/about/'>About</a></li>
+        <li><a href='/login/'>Login</a></li>
+    </ul>
+</nav>
+
+<h2>Job Application Submitted!</h2>
+
+<p>Confirmation has been sent to your email address.</p>
+
+<p>We appreciate your interest in joining our team. Our hiring team will carefully review your application and qualifications.</p>
+
+<p>Thank you!</p>
+{% endblock %}
