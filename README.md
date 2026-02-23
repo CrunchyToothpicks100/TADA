@@ -1,67 +1,87 @@
-
-# TADA
-
-![alt text](image-2.png)
-
-
-
-Note, the admin user is 
-```bash
-user: admin
-pass: groupb
-```
-You can add users from http://127.0.0.1:8000/admin/ admin dashboard or via console:
-
-```bash
-python manage.py createsuperuser
-```
-
----
-
 # Setup
 
-## Getting started (Poetry)
+### 1. Download Docker Desktop
 
-1) Install Poetry
+https://www.docker.com/products/docker-desktop/
 
-```bash
-pip install poetry
+### 2. Download Extensions (optional)
+
+Download 'Container Tools' and 'Docker' from your VS Code extensions
+
+### 3. Clone repository
+
+Open a terminal and run these
+
+```
+git clone https://github.com/CrunchyToothpicks100/TADA/
+cd TADA
 ```
 
-2) Install project dependencies (run from project root where manage.py exists)
+### 4. Environment variables
 
-```bash
-poetry install
+Copy this into a new file called '.env'
+
+```
+SECRET_KEY="copy_key_here"
+DEBUG="False"
+DATABASE_URL="postgres://tadauser:tadapw@db:5432/tada"
 ```
 
-3) Activate the virtual environment
+Go to https://djecrety.ir/ and create a new Django key
 
-```bash
-poetry shell
+Replace `"copy_key_here"` with your new key (in quotes)
+
+### 5. Docker Containers
+
+Run this
+
+```
+docker compose build
+docker compose up -d
 ```
 
-4) Run database migrations ( I am checking in the db.sqlite so you don't have to do this unless you blow away the database and want a new one )
+You should see your docker containers in VS Code and in your Docker Desktop
 
-```bash
-python manage.py makemigrations
+### 6. Run migrations
+
+This will open a shell inside the container
+
+```
+docker exec -it tada-web-1 sh
+python manage.py makemigrations candidates
 python manage.py migrate
 ```
 
-5) Start the development server
+### 7. Create sample data
 
-```bash
-python manage.py runserver
+Run this
+
+```
+python manage.py create_cand_data
 ```
 
-Open in browser:
-http://127.0.0.1:8000/
+And then exit the container shell
 
----
+```
+exit
+```
 
+### 8. Test
 
+Visit localhost:8000 in your browser to see if it's working
 
+# Notes
 
-# Database Stuff 
-Get this https://sqlitebrowser.org/ if you want to visually poke around the database file *db.sqlite3*
+You will no longer need the venv file, the container has its own venv
 
-![alt text](image.png)
+Anytime you need to refresh the webserver, run this
+
+```
+docker compose up -d --build
+```
+
+Edit HTML files in TADA\candidates\templates
+
+Useful website: https://www.w3schools.com/django/index.php
+
+Make sure DEBUG is false and ALLOWED_HOSTS is configured bfore deploying!
