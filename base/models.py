@@ -2,6 +2,22 @@ from django.db import models
 import uuid
 
 
+class Position(models.Model):
+    """
+    Job position within a company (e.g., Software Engineer, Sales Manager).
+    Each company can have many positions.
+    """
+    external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    company = models.ForeignKey('Company', on_delete=models.CASCADE, related_name="positions")
+    title = models.CharField(max_length=160)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} @ {self.company.name}"
+
+
 class Company(models.Model):
     """
     A company inside your greater org (espresso repair, 2A startup, vehicle ads, etc).
@@ -156,6 +172,14 @@ class Question(models.Model):
         related_name="questions",
     )
 
+    # Optional link to Position (nullable, position-wide questions)
+    position = models.ForeignKey(
+        'Position',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='questions',
+    )
     is_global = models.BooleanField(default=False, db_index=True)
 
     # who should see it (candidate form vs internal admin-only)
