@@ -1,0 +1,28 @@
+<nav class="navbar">
+  <ul class="nav-list">
+    <li><a href="{% url 'home2' %}">Home 2.0</a></li>
+    <li><a href="{% url 'home' %}">Home</a></li>
+    <li><a href="{% url 'about' %}">About</a></li>
+
+    {% if user.is_authenticated %}
+        {% if user.candidate_profile %}
+            <li><a href="{% url 'candidate_dashboard' %}">Candidate Dashboard</a></li>
+        {% endif %}
+
+        {% if user.company_staff %}
+            <li><a href="{% url 'staff_dashboard' %}">Staff Dashboard</a></li>
+        {% endif %}
+
+        <li class="spacer"></li>
+
+        <li>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+          </form>
+        </li>
+    {% else %}
+        <li><a href="{% url 'login' %}">Login</a></li>
+    {% endif %}
+  </ul>
+</nav>

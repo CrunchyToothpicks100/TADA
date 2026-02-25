@@ -7,10 +7,12 @@
     <head>
         <meta charset="utf-8">
         <title>{% block title %}{% endblock %}</title>
+        <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
         <style>{% block style %}{% endblock %}</style>
     </head>
     <body>
-    <img src="{% static 'images/TADA.png' %}" style="width: 100px; float: left; margin: 100px;">
+    <img src="{% static 'images/TADA.png' %}" style="width: 100px; float: left;">
     
     {% block content %}
     {% endblock %}

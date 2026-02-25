@@ -1,0 +1,88 @@
+
+{# Inherit base layout #}
+{% extends 'master.html' %}
+
+
+{# Set the page title #}
+{% block title %}TADA - Staff Dashboard{% endblock %}
+
+
+{# Custom styles for dashboard layout #}
+{% block style %}
+.container {
+    margin-top: 20px;
+}
+.card-header {
+    background-color: #f8f9fa;
+}
+{% endblock %}
+
+
+{# Main content block for staff dashboard #}
+{% block content %}
+    {% include 'navbar.html' %}
+    <div class="container mt-5">
+        <h2>Staff Dashboard</h2>
+        <p>Welcome to your dashboard! Here you can manage job postings and review applications.</p>
+
+        {# Job Postings Section #}
+        <div class="card mb-4">
+            <div class="card-header">
+                Job Postings
+            </div>
+            <ul class="list-group list-group-flush">
+                {# Loop through jobs passed from the view #}
+                {% for job in jobs %}
+                <li class="list-group-item">
+                    <h5>{{ job.title }}</h5>
+                    <p>{{ job.description }}</p>
+                    {# Edit and Delete links for each job #}
+                    <a href="{% url 'edit_job' job.id %}" class="btn btn-secondary">Edit</a>
+                    <a href="{% url 'delete_job' job.id %}" class="btn btn-danger">Delete</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No job postings available.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {# Applications Section #}
+        <div class="card mb-4">
+            <div class="card-header">
+                Applications
+            </div>
+            <ul class="list-group list-group-flush">
+                {# Loop through applications passed from the view #}
+                {% for application in applications %}
+                <li class="list-group-item">
+                    <h5>{{ application.candidate_name }} - {{ application.job_title }}</h5>
+                    <p>Status: {{ application.status }}</p>
+                    <a href="{% url 'application_detail' application.id %}" class="btn btn-primary">View Details</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No applications available.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {# Candidate Section #}
+        <div class="card mb-4">
+            <div class="card-header">
+                Candidates
+            </div>
+            <ul class="list-group list-group-flush">
+                {# Loop through candidates passed from the view #}
+                {% for candidate in candidates %}
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="/candidates/details/{{ candidate.id }}">{{ candidate }}</a>
+                    </li>
+                </ul>
+                {% empty %}
+                <li class="list-group-item">No candidates available.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+{% endblock %}

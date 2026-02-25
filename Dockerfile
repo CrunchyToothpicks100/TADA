@@ -5,6 +5,11 @@ FROM python:3.14-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Install vim for easier debugging
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends vim \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set working directory
 WORKDIR /app
 
@@ -21,6 +26,10 @@ RUN poetry install --no-interaction --no-ansi
 
 # Copy project files
 COPY . .
+
+# Use 'pymg' as an alias for 'python manage.py'
+RUN echo "pymg() { python manage.py \"\$@\"; }" >> /root/.bashrc
+RUN echo "echo 'BASHRC loaded'" >> /root/.bashrc
 
 # Expose port
 EXPOSE 8000

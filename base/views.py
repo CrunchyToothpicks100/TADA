@@ -7,10 +7,18 @@ from django.shortcuts import redirect
 from base.models import Candidate
 from django.contrib.auth.models import User
 
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
+
+def logout_view(request):
+    from django.contrib.auth import logout
+    logout(request)
+    return redirect('/')
+
 
 def submit_application(request):
-    template = loader.get_template('submit_application.html')
-    return HttpResponse(template.render(request=request))
+    return render(request, 'submit_application.html')
 
 
 def application(request):
@@ -37,46 +45,105 @@ def application(request):
         )
         return redirect('/submit_application/')
 
-    return HttpResponse(template.render(request=request))
+    return render(request, 'application.html')
 
 
 def about(request):
-    template = loader.get_template('about.html')
-    return HttpResponse(template.render())
+    return render(request, "about.html")
 
 
 def candidates(request):
     mycandidates = Candidate.objects.all()
-    template = loader.get_template('all_candidates.html')
     context = {
         'mycandidates': mycandidates
     }
-    return HttpResponse(template.render(context, request))
+    return render(request, 'all_candidates.html', context)
 
 
 def details(request, id):  #id comes from the URL
     mycandidate = Candidate.objects.get(id=id)
-    template = loader.get_template('details.html')
     context = {
         'mycandidate': mycandidate,
     }
-    return HttpResponse(template.render(context, request))
-
-
-def main(request):
-    template = loader.get_template('main.html')
-    return HttpResponse(template.render())
+    return render(request, 'details.html', context)
 
 
 def home(request):
-    return render(request, "tailwinds/home.html", {})
+    return render(request, "home.html", {})
+
+
+def home2(request):
+    return render(request, "tailwinds/home2.html", {})
 
 
 def login(request):
+    from django.contrib.auth import authenticate, login as auth_login
     template = loader.get_template('auth/login.html')
-    return HttpResponse(template.render(request=request))
+
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        # Find user by email
+        from django.contrib.auth.models import User
+        try:
+            user_obj = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return HttpResponse("Invalid email or password. Does not exist. w")
+
+        user = authenticate(request, username=user_obj.username, password=password)
+        if user is not None:
+            auth_login(request, user)
+            # Check Candidate or CompanyStaff
+            from base.models import Candidate, CompanyStaff
+            if hasattr(user, 'candidate_profile'):
+                return redirect('/candidate_dashboard/')
+            elif hasattr(user, 'company_staff'):
+                return redirect('/staff_dashboard/')
+            else:
+                return HttpResponse("User type not recognized.")
+        else:
+            return HttpResponse("Invalid email or password. (Invalid credentials).")
+
+    return render(request, 'auth/login.html')
 
 
 def forgotpw(request):
-    template = loader.get_template('auth/forgotpw.html')
-    return HttpResponse(template.render(request=request))
+    return render(request, 'auth/forgotpw.html')
+
+
+# Candidate Dashboard View
+@login_required
+def candidate_dashboard(request):
+    user = request.user
+    candidate = getattr(user, 'candidate_profile', None)
+    # If you have an Application model, replace [] with a real query
+    applications = []
+    context = {
+        'applications': applications,
+        'candidate': candidate,
+    }
+    return render(request, 'candidate_dashboard.html', context)
+
+
+# Staff Dashboard View
+@login_required
+def staff_dashboard(request):
+    user = request.user
+    staff = getattr(user, 'company_staff', None)
+    jobs = []
+    applications = []
+    candidates = Candidate.objects.all()  # Example: get all candidates for display
+    # -- to do -- 
+    # jobs = Position.objects.filter(company=staff.company) if staff else []
+    # applications = Application.objects.filter(job__company=staff.company) if staff else []
+    from base.models import Position
+    if staff:
+        jobs = Position.objects.filter(company=staff.company)
+    context = {
+        'jobs': jobs,
+        'applications': applications,
+        'staff': staff,
+        'candidates': candidates,
+    }
+    return render(request, 'staff_dashboard.html', context)
