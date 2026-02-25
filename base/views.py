@@ -100,6 +100,8 @@ def login(request):
                 return redirect('/candidate_dashboard/')
             elif hasattr(user, 'company_staff'):
                 return redirect('/staff_dashboard/')
+            elif user.is_superuser:
+                return redirect('/staff_dashboard/')
             else:
                 return HttpResponse("User type not recognized.")
         else:
@@ -116,6 +118,9 @@ def forgotpw(request):
 @login_required
 def candidate_dashboard(request):
     user = request.user
+    if (not hasattr(user, 'candidate_profile') 
+        and not user.is_superuser):
+        return HttpResponse("Unauthorized: You are not a candidate.")
     candidate = getattr(user, 'candidate_profile', None)
     # If you have an Application model, replace [] with a real query
     applications = []
@@ -130,6 +135,9 @@ def candidate_dashboard(request):
 @login_required
 def staff_dashboard(request):
     user = request.user
+    if (not hasattr(user, 'company_staff') 
+        and not user.is_superuser):
+        return HttpResponse("Unauthorized: You are not a staff member.")
     staff = getattr(user, 'company_staff', None)
     jobs = []
     applications = []
