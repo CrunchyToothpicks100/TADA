@@ -1,5 +1,6 @@
 <!-- This page is basically an HTML template that other pages extend -->
 <!-- "title" and "content" are blocks that other pages can override -->
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en-US">
@@ -9,8 +10,8 @@
         <style>{% block style %}{% endblock %}</style>
     </head>
     <body>
-<img src="images/TADA.png" style="width: 100px; float: left; margin: 100px;">
-
+    <img src="{% static 'images/TADA.png' %}" style="width: 100px; float: left; margin: 100px;">
+    
     {% block content %}
     {% endblock %}
 
