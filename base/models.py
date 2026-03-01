@@ -171,6 +171,7 @@ class IntakeSubmission(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+    edited_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.company.slug}:{self.email} ({self.status})"
@@ -329,3 +330,18 @@ class CandidateAnswerChoice(models.Model):
 
     def __str__(self):
         return f"{self.answer_id}:{self.choice_id}"
+
+
+class ApplicationToken(models.Model):
+    """
+    One-time magic link token for a candidate to resume or complete their application.
+    Created when the candidate enters their email at the start of the application.
+    Invalidated once used.
+    """
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="application_tokens")
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Token for {self.candidate} (used: {self.used_at is not None})"
