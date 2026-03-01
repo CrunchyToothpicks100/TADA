@@ -12,7 +12,7 @@ class Command(BaseCommand):
         # Create or get a sample company
         company, _ = Company.objects.get_or_create(
             slug="sample-company",
-            defaults={"name": "Sample Company"}
+            defaults={"title": "Sample Company"}
         )
 
         staff_members = [

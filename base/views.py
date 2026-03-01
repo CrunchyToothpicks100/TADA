@@ -89,7 +89,7 @@ def login(request):
         try:
             user_obj = User.objects.get(email=email)
         except User.DoesNotExist:
-            return HttpResponse("Invalid email or password. Does not exist. w")
+            return HttpResponse("Invalid email or password. Does not exist.")
 
         user = authenticate(request, username=user_obj.username, password=password)
         if user is not None:

@@ -7,15 +7,31 @@ class Position(models.Model):
     Job position within a company (e.g., Software Engineer, Sales Manager).
     Each company can have many positions.
     """
+    EMPLOYMENT_FULL_TIME = "full_time"
+    EMPLOYMENT_PART_TIME = "part_time"
+    EMPLOYMENT_TYPE_CHOICES = [
+        (EMPLOYMENT_FULL_TIME, "Full-time"),
+        (EMPLOYMENT_PART_TIME, "Part-time"),
+    ]
+
     external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     company = models.ForeignKey('Company', on_delete=models.CASCADE, related_name="positions")
+    created_by = models.ForeignKey(
+        "auth.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_positions"
+    )
     title = models.CharField(max_length=160)
     description = models.TextField(blank=True)
+    employment_type = models.CharField(
+        max_length=20,
+        choices=EMPLOYMENT_TYPE_CHOICES,
+        default=EMPLOYMENT_FULL_TIME,
+        db_index=True,
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.title} @ {self.company.name}"
+        return f"{self.title} @ {self.company.title}"
 
 
 class Company(models.Model):
@@ -25,14 +41,19 @@ class Company(models.Model):
     """
     external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     slug = models.SlugField(unique=True)
-    name = models.CharField(max_length=160)
+    title = models.CharField(max_length=160)
+    description = models.TextField(blank=True)
+    location = models.CharField(max_length=200, blank=True)
+    created_by = models.ForeignKey(
+        "auth.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_companies"
+    )
 
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.name
+        return self.title
 
 
 class CompanyStaff(models.Model):
