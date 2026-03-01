@@ -93,9 +93,8 @@ class Candidate(models.Model):
     phone = models.CharField(max_length=40, blank=True)
     linkedin_url = models.URLField(blank=True)
 
-    # freeform summary + internal notes (admins)
+    # freeform summary written by the candidate
     bio = models.TextField(blank=True)
-    admin_notes = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -130,6 +129,23 @@ class CandidateInterest(models.Model):
 
     def __str__(self):
         return f"{self.candidate} -> {self.key}"
+
+
+class Note(models.Model):
+    """
+    Internal notes written by staff/admins about a candidate.
+    Replaces the old admin_notes TextField on Candidate.
+    """
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="notes")
+    author = models.ForeignKey(
+        "auth.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="authored_notes"
+    )
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    edited_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Note by {self.author} on {self.candidate}"
 
 
 class IntakeSubmission(models.Model):
