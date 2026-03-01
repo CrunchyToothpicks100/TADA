@@ -148,7 +148,7 @@ class Note(models.Model):
         return f"Note by {self.author} on {self.candidate}"
 
 
-class IntakeSubmission(models.Model):
+class Submission(models.Model):
     """
     Stores a submitted form payload even if we couldn't create a User due to duplicate email.
     You can later "resolve" it by attaching it to the correct Candidate/User.
@@ -156,41 +156,31 @@ class IntakeSubmission(models.Model):
     external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="intake_submissions")
-    email = models.EmailField(db_index=True)
+    candidate = models.ForeignKey(Candidate, on_delete=models.SET_NULL, null=True, blank=True, related_name="submissions")
 
     # snapshot of what they submitted
     payload = models.JSONField(default=dict, blank=True)
 
     # resolution workflow
     STATUS_NEW = "new"
-    STATUS_NEEDS_EMAIL = "needs_email"  # duplicate email, told to use a different one
-    STATUS_RESOLVED = "resolved"
     STATUS_DISCARDED = "discarded"
+    STATUS_FINISHED = "finished"
     status = models.CharField(
         max_length=20,
         choices=[
             (STATUS_NEW, "New"),
-            (STATUS_NEEDS_EMAIL, "Needs Email"),
-            (STATUS_RESOLVED, "Resolved"),
             (STATUS_DISCARDED, "Discarded"),
+            (STATUS_FINISHED, "Finished"),
         ],
         default=STATUS_NEW,
         db_index=True,
-    )
-
-    resolved_candidate = models.ForeignKey(
-        Candidate,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="resolved_submissions",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
     edited_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.company.slug}:{self.email} ({self.status})"
+        return f"{self.company.slug}:{self.candidate} ({self.status})"
 
 
 class Question(models.Model):

@@ -13,6 +13,6 @@
 3. Candidate submits
       -> Candidate fields populated
       -> CandidateAnswer rows created
-      -> IntakeSubmission created
+      -> Submission created
       -> Password set and emailed (or they set it themselves)
       -> Token marked used
