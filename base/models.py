@@ -279,13 +279,13 @@ class QuestionChoice(models.Model):
         return f"{self.question_id}:{self.value}"
 
 
-class CandidateAnswer(models.Model):
+class Answer(models.Model):
     """
-    One row per (candidate, question).
+    One row per (submission, question).
     Stores different types in different columns.
-    For multi-choice, we store selections in CandidateAnswerChoice.
+    For multi-choice, we store selections in AnswerChoice.
     """
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="answers")
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="answers")
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
 
     int_value = models.IntegerField(null=True, blank=True)
@@ -305,21 +305,21 @@ class CandidateAnswer(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["candidate", "question"], name="uniq_candidate_question_answer"),
+            models.UniqueConstraint(fields=["submission", "question"], name="uniq_submission_question_answer"),
         ]
         indexes = [
             models.Index(fields=["question"]),
         ]
 
     def __str__(self):
-        return f"{self.candidate_id}:{self.question_id}"
+        return f"{self.submission_id}:{self.question_id}"
 
 
-class CandidateAnswerChoice(models.Model):
+class AnswerChoice(models.Model):
     """
     Multi-select bridge table.
     """
-    answer = models.ForeignKey(CandidateAnswer, on_delete=models.CASCADE, related_name="multi_choices")
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name="multi_choices")
     choice = models.ForeignKey(QuestionChoice, on_delete=models.CASCADE, related_name="multi_selected_in")
 
     class Meta:
