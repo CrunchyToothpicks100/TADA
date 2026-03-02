@@ -116,7 +116,7 @@ class CandidateInterest(models.Model):
     Examples: cars, guns, coffee, python, sportscars, etc.
     """
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="interests")
-    key = models.SlugField()  # e.g. "cars", "guns", "python"
+    slug = models.SlugField()  # e.g. "cars", "guns", "python"
     label = models.CharField(max_length=120)  # e.g. "Cars", "Guns", "Python"
     strength_1_to_10 = models.PositiveSmallIntegerField(null=True, blank=True)
 
@@ -124,7 +124,7 @@ class CandidateInterest(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["candidate", "key"], name="uniq_candidate_interest_key"),
+            models.UniqueConstraint(fields=["candidate", "slug"], name="uniq_candidate_interest_key"),
         ]
 
     def __str__(self):
