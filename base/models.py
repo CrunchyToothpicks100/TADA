@@ -216,7 +216,7 @@ class Question(models.Model):
     # If position is null, question is company-wide
     position = models.ForeignKey(
         'Position',
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name='questions',
