@@ -150,13 +150,27 @@ class Note(models.Model):
 
 class Submission(models.Model):
     """
-    Stores a submitted form payload even if we couldn't create a User due to duplicate email.
-    You can later "resolve" it by attaching it to the correct Candidate/User.
+    Holds job aplication data for a candidate.
+    If candidate is not logged in, using a new email is enforced.
+    Status becomes finished once candidate submits it.
     """
     external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
-    company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="intake_submissions")
-    candidate = models.ForeignKey(Candidate, on_delete=models.SET_NULL, null=True, blank=True, related_name="submissions")
+    position = models.ForeignKey(
+        Position, 
+        on_delete=models.PROTECT, 
+        null=True, 
+        blank=True, 
+        related_name="submissions"
+    )
+
+    candidate = models.ForeignKey(
+        Candidate, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name="submissions"
+    )
 
     # snapshot of what they submitted
     payload = models.JSONField(default=dict, blank=True)
@@ -177,6 +191,7 @@ class Submission(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
     edited_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
@@ -186,12 +201,10 @@ class Submission(models.Model):
 class Question(models.Model):
     """
     Custom questions.
-    - company = NULL means it is defined "globally"
-    - is_global=True means "ask across the board" (even if owned by a company)
-      This lets Company X invent a question, then promote it to everyone.
     """
     external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
+    # If company is null, question is global
     company = models.ForeignKey(
         Company,
         on_delete=models.CASCADE,
@@ -200,27 +213,13 @@ class Question(models.Model):
         related_name="questions",
     )
 
-    # Optional link to Position (nullable, position-wide questions)
+    # If position is null, question is company-wide
     position = models.ForeignKey(
         'Position',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='questions',
-    )
-    is_global = models.BooleanField(default=False, db_index=True)
-
-    # who should see it (candidate form vs internal admin-only)
-    AUD_CANDIDATE = "candidate"
-    AUD_ADMIN = "admin"
-    audience = models.CharField(
-        max_length=20,
-        choices=[
-            (AUD_CANDIDATE, "Candidate"),
-            (AUD_ADMIN, "Admin"),
-        ],
-        default=AUD_CANDIDATE,
-        db_index=True,
     )
 
     # question “shape”
@@ -246,10 +245,6 @@ class Question(models.Model):
 
     help_text = models.CharField(max_length=240, blank=True)
 
-    # for rating questions (defaults make your “1-10 everything” idea easy)
-    min_value = models.PositiveSmallIntegerField(default=1)
-    max_value = models.PositiveSmallIntegerField(default=10)
-
     is_required = models.BooleanField(default=False)
     sort_order = models.IntegerField(default=0)
 
@@ -257,14 +252,12 @@ class Question(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        indexes = [
-            models.Index(fields=["company", "is_active", "audience"]),
-            models.Index(fields=["is_global", "is_active", "audience"]),
-        ]
-
     def __str__(self):
-        scope = self.company.slug if self.company_id else "global"
+        scope = "global"
+        if (self.postion_id):
+            scope = self.position.title
+        elif (self.company_id):
+            scope = self.company.slug
         return f"[{scope}] {self.prompt[:60]}"
 
 
@@ -342,7 +335,7 @@ class ApplicationToken(models.Model):
     """
     One-time magic link token for a candidate to resume or complete their application.
     Created when the candidate enters their email at the start of the application.
-    Invalidated once used.
+    Can be used multiple times. Expires after a week.
     """
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="application_tokens")
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
