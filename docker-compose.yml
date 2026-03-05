@@ -10,6 +10,23 @@ services:
       POSTGRES_PASSWORD: tadapw
     ports:
       - "5432:5432"
+    networks:
+      - default
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@example.com
+      PGADMIN_DEFAULT_PASSWORD: tadapw
+    ports:
+      - "8080:80" # Access pgAdmin on http://localhost:8080
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - default
+    depends_on:
+      - db
 
   web:
     build: .
@@ -24,6 +41,13 @@ services:
       - db
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings
+    networks:
+      - default
 
 volumes:
   postgres_data:
+  pgadmin_data:
+
+networks:
+  default:
+    driver: bridge

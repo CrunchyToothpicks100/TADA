@@ -254,7 +254,7 @@ class Question(models.Model):
 
     def __str__(self):
         scope = "global"
-        if (self.postion_id):
+        if (self.position_id):
             scope = self.position.title
         elif (self.company_id):
             scope = self.company.slug
@@ -276,7 +276,12 @@ class QuestionChoice(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.question_id}:{self.value}"
+        scope = "global"
+        if (self.question.position_id):
+            scope = self.question.position.title
+        elif (self.question.company_id):
+            scope = self.question.company.slug
+        return f"{self.question} : {self.value}"
 
 
 class Answer(models.Model):
