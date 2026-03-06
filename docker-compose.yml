@@ -10,8 +10,8 @@ services:
       POSTGRES_PASSWORD: tadapw
     ports:
       - "5432:5432"
-    networks:
-      - default
+    # networks:
+      # - default
 
   # pgadmin:
   #   image: dpage/pgadmin4
@@ -41,13 +41,13 @@ services:
       - db
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings
-    networks:
-      - default
+    # networks:
+    #   - default
 
 volumes:
   postgres_data:
   pgadmin_data:
 
-networks:
-  default:
-    driver: bridge
+# networks:
+#   default:
+#     driver: bridge

@@ -47,9 +47,9 @@ You should see your docker containers in VS Code and in your Docker Desktop
 This will open a shell inside the container
 
 ```
-docker exec -it tada-web-1 sh
-python manage.py makemigrations candidates
-python manage.py migrate
+docker exec -it tada-web-1 bash
+pymg makemigrations base
+pymg migrate
 ```
 
 ### 7. Create sample data
