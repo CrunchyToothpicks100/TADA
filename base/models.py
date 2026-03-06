@@ -6,6 +6,8 @@ class Position(models.Model):
     """
     Job position within a company (e.g., Software Engineer, Sales Manager).
     Each company can have many positions.
+
+    IMPORTANT: Positions are never deleted, only marked inactive, to preserve submission history.
     """
     EMPLOYMENT_FULL_TIME = "full_time"
     EMPLOYMENT_PART_TIME = "part_time"
@@ -156,6 +158,8 @@ class Submission(models.Model):
     """
     external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
+    # Positions should not be deleted in practice
+    # HOWEVER, position field is PROTECTED just in case
     position = models.ForeignKey(
         Position, 
         on_delete=models.PROTECT, 
@@ -164,11 +168,10 @@ class Submission(models.Model):
         related_name="submissions"
     )
 
+    # A submission will always have a candidate (see notes.md) 
     candidate = models.ForeignKey(
         Candidate, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
+        on_delete=models.CASCADE,
         related_name="submissions"
     )
 
@@ -204,7 +207,15 @@ class Question(models.Model):
     """
     external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
-    # If company is null, question is global
+    # NULL CHART:
+    # Company  | Position | Scope
+    # -------  | -------- | -----
+    # NULL     | NULL     | Global (all companies, all positions)
+    # Not null | NULL     | Company-wide (all positions at a company)
+    # Not null | Not null | Position-specific
+    # NULL     | Not null | INVALID (position must belong to a company)
+
+    # Company deletions cascade to questions to prevent "global" orphans
     company = models.ForeignKey(
         Company,
         on_delete=models.CASCADE,
@@ -213,7 +224,7 @@ class Question(models.Model):
         related_name="questions",
     )
 
-    # If position is null, question is company-wide
+    # Position deletions cascade to questions to prevent "global" orphans
     position = models.ForeignKey(
         'Position',
         on_delete=models.CASCADE,
