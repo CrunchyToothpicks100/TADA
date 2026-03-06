@@ -18,3 +18,14 @@
 Expiry:
 Application token expires in 3 days
 If the associated candidate has a NULL user, delete the candidate and cascade the deletion to CandidateAnswer, Submission, etc.
+
+Login:
+Use phone number or email!
+
+Candidate dashboard:
+      - option to change password
+      - secure password tips! (add to webpage)
+            - use at least 8 characters
+            - Do not use the same password you have used with us previously
+            - Do not use dictionary words, your name, e-mail address, mobile phone number or other personal information that can be easily obtained.
+            - Do not use the same password for multiple online accounts.
