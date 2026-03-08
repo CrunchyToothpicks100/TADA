@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from django.http import HttpResponse
 from django.template import loader
@@ -94,13 +94,10 @@ def login(request):
         user = authenticate(request, username=user_obj.username, password=password)
         if user is not None:
             auth_login(request, user)
-            # Check Candidate or CompanyStaff
             from base.models import Candidate, CompanyStaff
             if hasattr(user, 'candidate_profile'):
                 return redirect('/candidate_dashboard/')
-            elif hasattr(user, 'company_staff'):
-                return redirect('/staff_dashboard/')
-            elif user.is_superuser:
+            elif user.is_superuser or user.company_staff.exists():
                 return redirect('/staff_dashboard/')
             else:
                 return HttpResponse("User type not recognized.")
@@ -134,24 +131,70 @@ def candidate_dashboard(request):
 # Staff Dashboard View
 @login_required
 def staff_dashboard(request):
+    from base.models import Position, CompanyStaff
     user = request.user
-    if (not hasattr(user, 'company_staff') 
-        and not user.is_superuser):
+
+    staff_memberships = user.company_staff.select_related('company').all()
+    if not user.is_superuser and not staff_memberships.exists():
         return HttpResponse("Unauthorized: You are not a staff member.")
-    staff = getattr(user, 'company_staff', None)
-    jobs = []
+
+    # Determine selected company from GET param, defaulting to first membership
+    from base.models import Company
+    if user.is_superuser:
+        all_companies = Company.objects.filter(is_active=True)
+    else:
+        all_companies = [m.company for m in staff_memberships]
+
+    selected_company = None
+    company_id = request.GET.get('company_id')
+    if company_id:
+        selected_company = next((c for c in all_companies if str(c.id) == company_id), None)
+    if selected_company is None and all_companies:
+        selected_company = all_companies[0]
+
+    if user.is_superuser:
+        is_company_admin = True
+    else:
+        membership = staff_memberships.filter(company=selected_company).first()
+        is_company_admin = membership.is_admin if membership else False
+
+    positions = Position.objects.filter(company=selected_company) if selected_company else []
+    candidates = Candidate.objects.all()
     applications = []
-    candidates = Candidate.objects.all()  # Example: get all candidates for display
-    # -- to do -- 
-    # jobs = Position.objects.filter(company=staff.company) if staff else []
-    # applications = Application.objects.filter(job__company=staff.company) if staff else []
-    from base.models import Position
-    if staff:
-        jobs = Position.objects.filter(company=staff.company)
+
     context = {
-        'jobs': jobs,
+        'all_companies': all_companies,
+        'selected_company': selected_company,
+        'is_company_admin': is_company_admin,
+        'positions': positions,
         'applications': applications,
-        'staff': staff,
         'candidates': candidates,
     }
     return render(request, 'staff_dashboard.html', context)
+
+
+@login_required
+def edit_position(request, id):
+    from base.models import Position, CompanyStaff
+    position = get_object_or_404(Position, id=id)
+    user = request.user
+
+    # Only company admins for this position's company, or superusers, may edit
+    if not user.is_superuser:
+        membership = user.company_staff.filter(company=position.company, is_admin=True).first()
+        if not membership:
+            return HttpResponse("Unauthorized: You are not an admin for this company.")
+
+    if request.method == 'POST':
+        position.title = request.POST.get('title', '').strip()
+        position.description = request.POST.get('description', '').strip()
+        position.employment_type = request.POST.get('employment_type', position.employment_type)
+        position.is_active = request.POST.get('is_active') == 'on'
+        position.save()
+        return redirect(f'/staff_dashboard/?company_id={position.company_id}')
+
+    context = {
+        'position': position,
+        'employment_type_choices': Position.EMPLOYMENT_TYPE_CHOICES,
+    }
+    return render(request, 'edit_position.html', context)

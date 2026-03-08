@@ -60,16 +60,21 @@ class Company(models.Model):
 
 class CompanyStaff(models.Model):
     """
-    A user linked to exactly ONE company as "their" admin/staff company.
-    (If later you want staff to span companies, change unique constraint.)
+    Bridge table linking a user to one or more companies as staff/admin.
+    is_admin is per-company: a user can be admin at one company and staff at another.
     """
-    user = models.OneToOneField("auth.User", on_delete=models.CASCADE, related_name="company_staff")
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="company_staff")
     company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="staff")
 
-    # keep it simple: admin vs staff
+    # admin vs staff, scoped per company
     is_admin = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "company"], name="uniq_companystaff_user_company"),
+        ]
 
     def __str__(self):
         return f"{self.user} @ {self.company}"
@@ -116,7 +121,6 @@ class CandidateInterest(models.Model):
     Examples: cars, guns, coffee, python, sportscars, etc.
     """
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="interests")
-    slug = models.SlugField()  # e.g. "cars", "guns", "python"
     label = models.CharField(max_length=120)  # e.g. "Cars", "Guns", "Python"
     strength_1_to_10 = models.PositiveSmallIntegerField(null=True, blank=True)
 
@@ -124,11 +128,11 @@ class CandidateInterest(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["candidate", "slug"], name="uniq_candidate_interest_key"),
+            models.UniqueConstraint(fields=["candidate", "label"], name="uniq_candidate_interest_label"),
         ]
 
     def __str__(self):
-        return f"{self.candidate} -> {self.slug}"
+        return f"{self.candidate} -> {self.label}"
 
 
 class Note(models.Model):

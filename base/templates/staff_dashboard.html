@@ -9,15 +9,12 @@
 
 {# Custom styles for dashboard layout #}
 {% block style %}
-.container {
-    margin-top: 20px;
+.company-selector {
+    margin-bottom: 20px;
 }
-.card-header {
-    background-color: #f8f9fa;
-}
-ul {
-    list-style-type: none;
-    padding-left: 0;
+.company-selector label {
+    font-weight: bold;
+    margin-right: 8px;
 }
 {% endblock %}
 
@@ -25,24 +22,43 @@ ul {
 {# Main content block for staff dashboard #}
 {% block content %}
     {% include 'navbar.html' %}
-    <div class="container mt-5">
-        <h2>Staff Dashboard</h2>
-        <p>Welcome to your dashboard! Here you can manage job postings and review applications.</p>
+    <div class="container page-container">
+        <h2>Staff Dashboard{% if selected_company %} — {{ selected_company.title }}{% endif %}</h2>
 
-        {# Job Postings Section #}
-        <div class="card mb-4">
+        {# Company selector — only shown when the user has access to multiple companies #}
+        {% if all_companies|length > 1 %}
+        <div class="company-selector">
+            <form method="get">
+                <label for="company_id">Company:</label>
+                <select name="company_id" id="company_id" onchange="this.form.submit()">
+                    {% for company in all_companies %}
+                    <option value="{{ company.id }}" {% if company.id == selected_company.id %}selected{% endif %}>
+                        {{ company.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        {% endif %}
+
+        {# Job Postings — admins can create/edit; staff can only view #}
+        <div class="card">
             <div class="card-header">
-                Job Postings
+                <span>Job Postings</span>
+                {% if is_company_admin %}
+                {# TODO: create_job not yet implemented — see TODO.md #}
+                {# <a href="{% url 'create_job' %}" class="btn btn-primary btn-sm">New Position</a> #}
+                <a href="#" class="btn btn-primary btn-sm">New Position</a>
+                {% endif %}
             </div>
             <ul class="list-group list-group-flush">
-                {# Loop through jobs passed from the view #}
-                {% for job in jobs %}
+                {% for position in positions %}
                 <li class="list-group-item">
-                    <h5>{{ job.title }}</h5>
-                    <p>{{ job.description }}</p>
-                    {# Edit and Delete links for each job #}
-                    <a href="{% url 'edit_job' job.id %}" class="btn btn-secondary">Edit</a>
-                    <a href="{% url 'delete_job' job.id %}" class="btn btn-danger">Delete</a>
+                    <h5>{{ position.title }}{% if not position.is_active %} <small class="text-muted">(inactive)</small>{% endif %}</h5>
+                    <p>{{ position.description }}</p>
+                    {% if is_company_admin %}
+                    <a href="{% url 'edit_position' position.id %}" class="btn btn-secondary btn-sm">Edit</a>
+                    {% endif %}
                 </li>
                 {% empty %}
                 <li class="list-group-item">No job postings available.</li>
@@ -50,32 +66,32 @@ ul {
             </ul>
         </div>
 
-        {# Applications Section #}
-        <div class="card mb-4">
+        {# Submissions — all staff can view and set status #}
+        <div class="card">
             <div class="card-header">
-                Applications
+                <span>Submissions</span>
             </div>
             <ul class="list-group list-group-flush">
-                {# Loop through applications passed from the view #}
                 {% for application in applications %}
                 <li class="list-group-item">
-                    <h5>{{ application.candidate_name }} - {{ application.job_title }}</h5>
-                    <p>Status: {{ application.status }}</p>
-                    <a href="{% url 'application_detail' application.id %}" class="btn btn-primary">View Details</a>
+                    <h5>{{ application.candidate }} — {{ application.position }}</h5>
+                    <p>Status: {{ application.get_status_display }}</p>
+                    {# TODO: application_detail not yet implemented — see TODO.md #}
+                    {# <a href="{% url 'application_detail' application.id %}" class="btn btn-primary btn-sm">View</a> #}
+                    <a href="#" class="btn btn-primary btn-sm">View</a>
                 </li>
                 {% empty %}
-                <li class="list-group-item">No applications available.</li>
+                <li class="list-group-item">No submissions available.</li>
                 {% endfor %}
             </ul>
         </div>
 
-        {# Candidate Section #}
-        <div class="card mb-4">
+        {# Candidates — all staff can view and make notes #}
+        <div class="card">
             <div class="card-header">
-                Candidates
+                <span>Candidates</span>
             </div>
             <ul class="list-group list-group-flush">
-                {# Loop through candidates passed from the view #}
                 {% for candidate in candidates %}
                 <li class="list-group-item">
                     <a href="/candidates/details/{{ candidate.id }}">{{ candidate }}</a>

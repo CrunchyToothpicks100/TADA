@@ -4,27 +4,16 @@
 TADA - Candidate Dashboard
 {% endblock %}
         
-{% block style %}
-    .container {
-        margin-top: 20px;
-    }
-    .card-header {
-        background-color: #f8f9fa;
-    }
-    ul {
-        list-style-type: none;
-        padding-left: 0;
-    }
-{% endblock %}
+{% block style %}{% endblock %}
 
 {% block content %}
     {% include 'navbar.html' %}
-    <div class="container mt-5">
+    <div class="container page-container">
         <h2>Candidate Dashboard</h2>
         <p>Welcome to your dashboard! Here you can view your applications and manage your profile.</p>
 
         {# Applications Section #}
-        <div class="card mb-4">
+        <div class="card">
             <div class="card-header">
                 My Applications
             </div>
@@ -34,8 +23,9 @@ TADA - Candidate Dashboard
                 <li class="list-group-item">
                     <h5>{{ application.job_title }}</h5>
                     <p>Status: {{ application.status }}</p>
-                    {# Link to view application details #}
-                    <a href="{% url 'application_detail' application.id %}" class="btn btn-primary">View Details</a>
+                    {# TODO: application_detail not yet implemented — see TODO.md #}
+                    {# <a href="{% url 'application_detail' application.id %}" class="btn btn-primary">View Details</a> #}
+                    <a href="#" class="btn btn-primary">View Details</a>
                 </li>
                 {% empty %}
                 <li class="list-group-item">You have not applied to any jobs yet.</li>

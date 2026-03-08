@@ -76,11 +76,13 @@
     -> Edit answers in those submissions
     -> Edit bio/phone/email/linkedin_url
 
-## User permissions rules 
-    A Django superuser has (is_superuser=True) in User 
-    A Company admin has (is_admin=True) in CompanyStaff 
-    A Company staff member has (is_admin=False) in CompanyStaff 
-    A Candidate has their own record in Candidate 
+## User permissions rules
+    A Django superuser has (is_superuser=True) in User
+    A Company admin has (is_admin=True) in CompanyStaff for a given company
+    A Company staff member has (is_admin=False) in CompanyStaff for a given company
+    A user can be staff/admin at multiple companies (one CompanyStaff row per company)
+    is_admin is scoped per company: a user can be admin at one and staff at another
+    A Candidate has their own record in Candidate
 
 ### Superusers 
     Create a Company 
