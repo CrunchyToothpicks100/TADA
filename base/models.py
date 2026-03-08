@@ -81,12 +81,12 @@ class Candidate(models.Model):
     """
     external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         "auth.User",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="candidate_profile",
+        related_name="candidate_profiles",
     )
 
     email = models.EmailField(db_index=True)
@@ -101,10 +101,8 @@ class Candidate(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["email"], name="uniq_candidate_email"),
-        ]
         indexes = [
+            models.Index(fields=["email"]),
             models.Index(fields=["last_name", "first_name"]),
         ]
 
@@ -198,7 +196,7 @@ class Submission(models.Model):
     edited_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.company.slug}:{self.candidate} ({self.status})"
+        return f"{self.candidate} ({self.status})"
 
 
 class Question(models.Model):
@@ -351,7 +349,7 @@ class ApplicationToken(models.Model):
     """
     One-time magic link token for a candidate to resume or complete their application.
     Created when the candidate enters their email at the start of the application.
-    Can be used multiple times. Expires after a week.
+    Can only be used once. Expires after 3 days.
     """
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="application_tokens")
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
