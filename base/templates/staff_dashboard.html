@@ -51,19 +51,19 @@
                 <a href="#" class="btn btn-primary btn-sm">New Position</a>
                 {% endif %}
             </div>
-            <ul class="list-group list-group-flush">
+            <div class="list-group">
                 {% for position in positions %}
-                <li class="list-group-item">
-                    <h5>{{ position.title }}{% if not position.is_active %} <small class="text-muted">(inactive)</small>{% endif %}</h5>
+                <div class="list-group-item">
+                    <h3>{{ position.title }}{% if not position.is_active %} <small class="text-muted">(inactive)</small>{% endif %}</h3>
                     <p>{{ position.description }}</p>
                     {% if is_company_admin %}
                     <a href="{% url 'edit_position' position.id %}" class="btn btn-secondary btn-sm">Edit</a>
                     {% endif %}
-                </li>
+                </div>
                 {% empty %}
-                <li class="list-group-item">No job postings available.</li>
+                <div class="list-group-item">No job postings available.</div>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
 
         {# Submissions — all staff can view and set status #}
@@ -71,19 +71,19 @@
             <div class="card-header">
                 <span>Submissions</span>
             </div>
-            <ul class="list-group list-group-flush">
+            <div class="list-group">
                 {% for application in applications %}
-                <li class="list-group-item">
-                    <h5>{{ application.candidate }} — {{ application.position }}</h5>
-                    <p>Status: {{ application.get_status_display }}</p>
+                <div class="list-group-item">
+                    <h3>{{ application.candidate }} — {{ application.position }}</h3>
+                    <p>Status: {{ application.status }}</p>
                     {# TODO: application_detail not yet implemented — see TODO.md #}
                     {# <a href="{% url 'application_detail' application.id %}" class="btn btn-primary btn-sm">View</a> #}
                     <a href="#" class="btn btn-primary btn-sm">View</a>
-                </li>
+                </div>
                 {% empty %}
-                <li class="list-group-item">No submissions available.</li>
+                <div class="list-group-item">No submissions available.</div>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
 
         {# Candidates — all staff can view and make notes #}
@@ -91,15 +91,15 @@
             <div class="card-header">
                 <span>Candidates</span>
             </div>
-            <ul class="list-group list-group-flush">
+            <div class="list-group">
                 {% for candidate in candidates %}
-                <li class="list-group-item">
+                <div class="list-group-item">
                     <a href="/candidates/details/{{ candidate.id }}">{{ candidate }}</a>
-                </li>
+                </div>
                 {% empty %}
-                <li class="list-group-item">No candidates available.</li>
+                <div class="list-group-item">No candidates available.</div>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
 
     </div>

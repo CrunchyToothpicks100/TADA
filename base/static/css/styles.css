@@ -45,20 +45,42 @@ body {
 
 /* ── Card component ───────────────────────────────── */
 .card {
+    width: 40vw;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #797979;
     margin-bottom: 24px;
+    justify-self: center;
 }
 
 .card-header {
     background-color: #f8f9fa;
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
-/* ── List reset (used inside .list-group cards) ───── */
-ul {
+/* ── List groups ──────────────────────────────────── */
+.list-group {
+    margin-bottom: 0;
+}
+
+.list-group .list-group-item {
+    border-inline: 2px solid #ddd;
+    padding: 12px 16px;
     list-style-type: none;
-    padding-left: 0;
+}
+
+.list-group .list-group-item:first-child {
+    border-top: 2px solid #ddd;
+}
+
+
+.list-group .list-group-item:first-child h3 {
+    margin-top: 0;
+}
+
+.list-group .list-group-item:last-child {
+    border-bottom: 2px solid #ddd;
 }
 
 /* ── Form groups ──────────────────────────────────── */

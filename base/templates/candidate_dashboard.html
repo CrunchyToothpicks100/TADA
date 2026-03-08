@@ -17,20 +17,20 @@ TADA - Candidate Dashboard
             <div class="card-header">
                 My Applications
             </div>
-            <ul class="list-group list-group-flush">
+            <div class="list-group">
                 {# Loop through applications passed from the view #}
                 {% for application in applications %}
-                <li class="list-group-item">
+                <div class="list-group-item">
                     <h5>{{ application.job_title }}</h5>
                     <p>Status: {{ application.status }}</p>
                     {# TODO: application_detail not yet implemented — see TODO.md #}
                     {# <a href="{% url 'application_detail' application.id %}" class="btn btn-primary">View Details</a> #}
                     <a href="#" class="btn btn-primary">View Details</a>
-                </li>
+                </div>
                 {% empty %}
-                <li class="list-group-item">You have not applied to any jobs yet.</li>
+                <div class="list-group-item">You have not applied to any jobs yet.</div>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
     </div>
 {% endblock %}

@@ -160,7 +160,8 @@ def staff_dashboard(request):
 
     positions = Position.objects.filter(company=selected_company) if selected_company else []
     candidates = Candidate.objects.all()
-    applications = []
+    from base.models import Submission
+    applications = Submission.objects.filter(position__company=selected_company) if selected_company else []
 
     context = {
         'all_companies': all_companies,
