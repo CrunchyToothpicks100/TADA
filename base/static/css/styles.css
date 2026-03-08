@@ -55,6 +55,10 @@ body {
 
 .card-header {
     background-color: #f8f9fa;
+    border: 2px solid #fff;
+    font-size: 1.25em;
+    font-style: italic;
+    padding: 3px 5px;
     display: flex;
     justify-content: space-between;
 }

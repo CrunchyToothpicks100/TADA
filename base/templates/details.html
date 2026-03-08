@@ -9,12 +9,20 @@
 
 {% block content %}
     {% include 'navbar.html' %}
-    <h1>{{ mycandidate }}</h1>
+    <div class="container page-container">
+    <h2>{{ mycandidate }}</h2>
 
-    <p>Email: {{ mycandidate.email }}</p>
-    <p>Phone: {{ mycandidate.phone }}</p>
-    <p>LinkedIn: {{ mycandidate.linkedin_url }}</p>
-    <p>Bio: {{ mycandidate.bio }}</p>
+    <div class="card">
+        <div class="card-header">
+            {{ mycandidate.first_name }} {{ mycandidate.last_name }}
+        </div>
+        <div class="list-group">
+            <li class="list-group-item">Email: {{ mycandidate.email }}</li>
+            <li class="list-group-item">Phone: {{ mycandidate.phone }}</li>
+            <li class="list-group-item">LinkedIn: {{ mycandidate.linkedin_url }}</li>
+            <li class="list-group-item">Bio: {{ mycandidate.bio }}</li>
+        </div>
+    </div>
     <p>
         Back to <a href="/staff_dashboard">Staff Dashboard</a>
     </p>
