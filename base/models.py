@@ -111,9 +111,9 @@ class Candidate(models.Model):
     )
 
     email = models.EmailField(db_index=True)
-    first_name = models.CharField(max_length=80, blank=True)
-    last_name = models.CharField(max_length=80, blank=True)
-    phone = models.CharField(max_length=40, blank=True)
+    first_name = models.CharField(max_length=80)
+    last_name = models.CharField(max_length=80)
+    phone = models.CharField(max_length=40)    
     linkedin_url = models.URLField(blank=True)
 
     # freeform summary written by the candidate
