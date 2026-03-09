@@ -215,3 +215,5 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# Text files (use .md files instead)
+*.txt

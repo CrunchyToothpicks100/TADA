@@ -11,9 +11,15 @@ class Position(models.Model):
     """
     EMPLOYMENT_FULL_TIME = "full_time"
     EMPLOYMENT_PART_TIME = "part_time"
+    EMPLOYMENT_CONTRACT = "contract"
+    EMPLOYMENT_INTERNSHIP = "internship"
+    EMPLOYMENT_TEMPORARY = "temporary"
     EMPLOYMENT_TYPE_CHOICES = [
         (EMPLOYMENT_FULL_TIME, "Full-time"),
         (EMPLOYMENT_PART_TIME, "Part-time"),
+        (EMPLOYMENT_CONTRACT, "Contract"),
+        (EMPLOYMENT_INTERNSHIP, "Internship"),
+        (EMPLOYMENT_TEMPORARY, "Temporary"),
     ]
 
     external_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -31,6 +37,16 @@ class Position(models.Model):
     )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(employment_type__in=[
+                    "full_time", "part_time", "contract", "internship", "temporary"
+                ]),
+                name="check_position_employment_type",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.title} @ {self.company.title}"
@@ -109,6 +125,12 @@ class Candidate(models.Model):
         indexes = [
             models.Index(fields=["email"]),
             models.Index(fields=["last_name", "first_name"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(email__contains="@"),
+                name="check_candidate_email",
+            ),
         ]
 
     def __str__(self):
@@ -203,6 +225,14 @@ class Submission(models.Model):
     finished_at = models.DateTimeField(null=True, blank=True)
     edited_at = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(status__in=["new", "discarded", "finished"]),
+                name="check_submission_status",
+            ),
+        ]
+
     def __str__(self):
         return f"{self.candidate} ({self.status})"
 
@@ -269,6 +299,16 @@ class Question(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(question_type__in=[
+                    "rating", "yesno", "text", "single", "multi"
+                ]),
+                name="check_question_type",
+            ),
+        ]
+
     def __str__(self):
         scope = "global"
         if (self.position_id):
@@ -285,11 +325,15 @@ class QuestionChoice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="choices")
     label = models.CharField(max_length=140)
     value = models.SlugField(max_length=140)  # stable machine value
-    sort_order = models.IntegerField(default=0)
+    sort_order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["question", "value"], name="uniq_choice_value_per_question"),
+            models.CheckConstraint(
+                condition=models.Q(sort_order__gte=0),
+                name="check_questionchoice_sort_order",
+            ),
         ]
 
     def __str__(self):
@@ -310,11 +354,11 @@ class Answer(models.Model):
     submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="answers")
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
 
-    int_value = models.IntegerField(null=True, blank=True)
-    bool_value = models.BooleanField(null=True, blank=True)
-    text_value = models.TextField(blank=True)
+    int_value = models.PositiveSmallIntegerField(null=True, blank=True)  # Question.TYPE_RATING
+    bool_value = models.BooleanField(null=True, blank=True)              # Question.TYPE_YESNO
+    text_value = models.TextField(blank=True)                            # Question.TYPE_TEXT
 
-    # single choice selection
+    # Question.TYPE_SINGLE
     choice = models.ForeignKey(
         QuestionChoice,
         on_delete=models.SET_NULL,
@@ -322,12 +366,17 @@ class Answer(models.Model):
         blank=True,
         related_name="selected_in_answers",
     )
+    # Question.TYPE_MULTI — selections stored in AnswerChoice
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["submission", "question"], name="uniq_submission_question_answer"),
+            models.CheckConstraint(
+                condition=models.Q(int_value__isnull=True) | models.Q(int_value__gte=0),
+                name="check_answer_int_value",
+            ),
         ]
         indexes = [
             models.Index(fields=["question"]),
