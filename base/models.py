@@ -122,13 +122,17 @@ class CandidateInterest(models.Model):
     """
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="interests")
     label = models.CharField(max_length=120)  # e.g. "Cars", "Guns", "Python"
-    strength_1_to_10 = models.PositiveSmallIntegerField(null=True, blank=True)
+    strength_1_to_10 = models.PositiveSmallIntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["candidate", "label"], name="uniq_candidate_interest_label"),
+            models.CheckConstraint(
+                condition=models.Q(strength_1_to_10__gte=1) & models.Q(strength_1_to_10__lte=10),
+                name="check_interest_strength_1_to_10",
+            ),
         ]
 
     def __str__(self):
