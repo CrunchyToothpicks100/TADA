@@ -16,47 +16,44 @@
 {% endblock %}
 
 {% block content %}
-    {% include 'navbar.html' %}
-    <div class="container page-container edit-container">
-        <h2>Edit Position</h2>
-        <p><a href="/staff_dashboard/?company_id={{ position.company_id }}">← Back to Staff Dashboard</a></p>
+    <h2>Edit Position</h2>
+    <p><a href="/staff_dashboard/?company_id={{ position.company_id }}">← Back to Staff Dashboard</a></p>
 
-        {% if not position.is_active %}
-        <div class="inactive-warning">This position is currently inactive.</div>
-        {% endif %}
+    {% if not position.is_active %}
+    <div class="inactive-warning">This position is currently inactive.</div>
+    {% endif %}
 
-        <form method="post">
-            {% csrf_token %}
+    <form method="post">
+        {% csrf_token %}
 
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" id="title" name="title" value="{{ position.title }}" required maxlength="160">
-            </div>
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" value="{{ position.title }}" required maxlength="160">
+        </div>
 
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" name="description">{{ position.description }}</textarea>
-            </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description">{{ position.description }}</textarea>
+        </div>
 
-            <div class="form-group">
-                <label for="employment_type">Employment Type</label>
-                <select id="employment_type" name="employment_type">
-                    {% for value, label in employment_type_choices %}
-                    <option value="{{ value }}" {% if position.employment_type == value %}selected{% endif %}>
-                        {{ label }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
+        <div class="form-group">
+            <label for="employment_type">Employment Type</label>
+            <select id="employment_type" name="employment_type">
+                {% for value, label in employment_type_choices %}
+                <option value="{{ value }}" {% if position.employment_type == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
 
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="is_active" {% if position.is_active %}checked{% endif %}>
-                    Active (uncheck to deactivate instead of deleting)
-                </label>
-            </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_active" {% if position.is_active %}checked{% endif %}>
+                Active (uncheck to deactivate instead of deleting)
+            </label>
+        </div>
 
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
-    </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
 {% endblock %}

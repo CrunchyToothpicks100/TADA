@@ -7,30 +7,27 @@ TADA - Candidate Dashboard
 {% block style %}{% endblock %}
 
 {% block content %}
-    {% include 'navbar.html' %}
-    <div class="container page-container">
-        <h2>Candidate Dashboard</h2>
-        <p>Welcome to your dashboard! Here you can view your applications and manage your profile.</p>
+    <h2>Candidate Dashboard</h2>
+    <p>Welcome to your dashboard! Here you can view your applications and manage your profile.</p>
 
-        {# Applications Section #}
-        <div class="card">
-            <div class="card-header">
-                My Applications
+    {# Applications Section #}
+    <div class="card">
+        <div class="card-header">
+            My Applications
+        </div>
+        <div class="list-group">
+            {# Loop through applications passed from the view #}
+            {% for application in applications %}
+            <div class="list-group-item">
+                <h5>{{ application.job_title }}</h5>
+                <p>Status: {{ application.status }}</p>
+                {# TODO: application_detail not yet implemented — see TODO.md #}
+                {# <a href="{% url 'application_detail' application.id %}" class="btn btn-primary">View Details</a> #}
+                <a href="#" class="btn btn-primary">View Details</a>
             </div>
-            <div class="list-group">
-                {# Loop through applications passed from the view #}
-                {% for application in applications %}
-                <div class="list-group-item">
-                    <h5>{{ application.job_title }}</h5>
-                    <p>Status: {{ application.status }}</p>
-                    {# TODO: application_detail not yet implemented — see TODO.md #}
-                    {# <a href="{% url 'application_detail' application.id %}" class="btn btn-primary">View Details</a> #}
-                    <a href="#" class="btn btn-primary">View Details</a>
-                </div>
-                {% empty %}
-                <div class="list-group-item">You have not applied to any jobs yet.</div>
-                {% endfor %}
-            </div>
+            {% empty %}
+            <div class="list-group-item">You have not applied to any jobs yet.</div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

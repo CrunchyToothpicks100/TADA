@@ -13,8 +13,6 @@
             <li><a href="{% url 'staff_dashboard' %}">Staff Dashboard</a></li>
         {% endif %}
 
-        <li class="spacer"></li>
-
         <li>
           <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}

@@ -12,10 +12,11 @@
         <style>{% block style %}{% endblock %}</style>
     </head>
     <body>
-    <img src="{% static 'images/TADA.png' %}" style="width: 100px; float: left;">
-    
-    {% block content %}
-    {% endblock %}
-
+        <img src="{% static 'images/TADA.png' %}" style="width: 100px; float: left;">
+        {% include 'navbar.html' %}
+        <div class="container page-container">
+            {% block content %}
+            {% endblock %}
+        </div>
     </body>
 </html>
