@@ -1,0 +1,15 @@
+{# Candidates — all staff can view and make notes #}
+<div class="card">
+    <div class="card-header">
+        <span>Candidates</span>
+    </div>
+    <div class="list-group">
+        {% for candidate in candidates %}
+        <div class="list-group-item">
+            <a href="{% url 'details' candidate.id %}">{{ candidate }}</a>
+        </div>
+        {% empty %}
+        <div class="list-group-item">No candidates available.</div>
+        {% endfor %}
+    </div>
+</div>

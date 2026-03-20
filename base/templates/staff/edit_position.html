@@ -17,7 +17,7 @@
 
 {% block content %}
     <h2>Edit Position</h2>
-    <p><a href="/staff_dashboard/?company_id={{ position.company_id }}">← Back to Staff Dashboard</a></p>
+    <p><a href="/dashboard/?company_id={{ position.company_id }}">← Back to Staff Dashboard</a></p>
 
     {% if not position.is_active %}
     <div class="inactive-warning">This position is currently inactive.</div>

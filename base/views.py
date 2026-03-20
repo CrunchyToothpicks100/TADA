@@ -65,7 +65,7 @@ def details(request, id):  #id comes from the URL
     context = {
         'mycandidate': mycandidate,
     }
-    return render(request, 'details.html', context)
+    return render(request, 'staff/details.html', context)
 
 
 def home(request):
@@ -90,13 +90,7 @@ def login(request):
         user = authenticate(request, username=user_obj.username, password=password)
         if user is not None:
             auth_login(request, user)
-            from base.models import Candidate, CompanyStaff
-            if hasattr(user, 'candidate_profile'):
-                return redirect('/candidate_dashboard/')
-            elif user.is_superuser or user.company_staff.exists():
-                return redirect('/staff_dashboard/')
-            else:
-                return HttpResponse("User type not recognized.")
+            return redirect('dashboard')
         else:
             return HttpResponse("Invalid email or password. (Invalid credentials).")
 
@@ -111,42 +105,66 @@ def forgotpw(request):
 @login_required
 def candidate_dashboard(request):
     user = request.user
-    if (not hasattr(user, 'candidate_profile') 
-        and not user.is_superuser):
-        return HttpResponse("Unauthorized: You are not a candidate.")
     candidate = getattr(user, 'candidate_profile', None)
-    # If you have an Application model, replace [] with a real query
     applications = []
     context = {
         'applications': applications,
         'candidate': candidate,
+        'is_candidate': True,
     }
     return render(request, 'candidate_dashboard.html', context)
 
 
 # Staff Dashboard View
 @login_required
-def staff_dashboard(request):
+def staff_or_admin_dashboard(request):
     from base.models import Position, Submission
-    user = request.user
+    from base.context import staff_context
 
-    if not user.is_superuser and not user.company_staff.exists():
-        return HttpResponse("Unauthorized: You are not a staff member.")
-
-    # Reuse context processor to resolve selected_company for DB queries below
-    from base.context_processors import staff_context
-    selected_company = staff_context(request).get('selected_company')
-
-    positions = Position.objects.filter(company=selected_company) if selected_company else []
-    candidates = Candidate.objects.all()
-    applications = Submission.objects.filter(position__company=selected_company) if selected_company else []
+    ctx = staff_context(request)
+    selected_company = ctx.get('selected_company')
 
     context = {
-        'positions': positions,
-        'applications': applications,
-        'candidates': candidates,
+        **ctx,
+        'positions': Position.objects.filter(company=selected_company) if selected_company else [],
+        'applications': Submission.objects.filter(position__company=selected_company) if selected_company else [],
+        'is_candidate': Candidate.objects.filter(user=request.user).exists(),
     }
-    return render(request, 'staff_dashboard.html', context)
+    if ctx.get('user_type') == 'Admin':
+        return render(request, 'staff/admin_dashboard.html', context)
+    else:
+        return render(request, 'staff/staff_dashboard.html', context)
+
+# Super Dashboard View
+@login_required
+def super_dashboard(request):
+    from base.models import Position, Submission
+    from base.context import staff_context
+
+    ctx = staff_context(request)
+    selected_company = ctx.get('selected_company')
+
+    context = {
+        **ctx,
+        'positions': Position.objects.filter(company=selected_company) if selected_company else [],
+        'candidates': Candidate.objects.all(),
+        'applications': Submission.objects.filter(position__company=selected_company) if selected_company else [],
+        'is_candidate': Candidate.objects.filter(user=request.user).exists(),
+    }
+    return render(request, 'staff/super_dashboard.html', context)
+
+
+@login_required
+def dashboard(request):
+    user = request.user
+    
+    if user.is_superuser:
+        return super_dashboard(request)
+    elif user.company_staff.exists():
+        return staff_or_admin_dashboard(request)
+    elif Candidate.objects.filter(user=request.user).exists():
+        return candidate_dashboard(request)
+    return HttpResponse("User type not recognized.")
 
 
 @login_required
@@ -173,4 +191,4 @@ def edit_position(request, id):
         'position': position,
         'employment_type_choices': Position.EMPLOYMENT_TYPE_CHOICES,
     }
-    return render(request, 'edit_position.html', context)
+    return render(request, 'staff/edit_position.html', context)

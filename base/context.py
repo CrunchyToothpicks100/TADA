@@ -1,21 +1,16 @@
 from base.models import Company
 
-
+# Warning: only call this from views that are strictly for staff/admin/super users
 def staff_context(request):
     user = request.user
-
-    # Skip unauthenticated users (e.g. login page)
-    if not user.is_authenticated:
-        return {}
 
     # Superusers see all active companies; staff see only their own
     if user.is_superuser:
         all_companies = list(Company.objects.filter(is_active=True))
-    elif user.company_staff.exists():
-        all_companies = [m.company for m in user.company_staff.select_related('company').all()]
+        user_type = 'Super'
     else:
-        # Authenticated but not staff or superuser (e.g. candidate) — nothing to inject
-        return {}
+        all_companies = [m.company for m in user.company_staff.select_related('company').all()]
+        user_type = None  # resolved after selected_company is known
 
     # Determine selected company from ?company_id= query param, defaulting to the first
     company_id = request.GET.get('company_id')
@@ -23,15 +18,13 @@ def staff_context(request):
     if selected_company is None and all_companies:
         selected_company = all_companies[0]
 
-    # Superusers are always admin; otherwise check the CompanyStaff record
-    if user.is_superuser:
-        is_company_admin = True
-    else:
+    # Resolve per-company admin status for non-superusers
+    if not user.is_superuser:
         membership = user.company_staff.filter(company=selected_company).first()
-        is_company_admin = membership.is_admin if membership else False
+        user_type = 'Admin' if membership and membership.is_admin else 'Staff'
 
     return {
         'all_companies': all_companies,
         'selected_company': selected_company,
-        'is_company_admin': is_company_admin,
+        'user_type': user_type,
     }

@@ -4,13 +4,7 @@
     <li><a href="{% url 'about' %}">About</a></li>
 
     {% if user.is_authenticated %}
-        {% if user.candidate_profile or user.is_superuser %}
-            <li><a href="{% url 'candidate_dashboard' %}">Candidate Dashboard</a></li>
-        {% endif %}
-
-        {% if user.company_staff or user.is_superuser %}
-            <li><a href="{% url 'staff_dashboard' %}">Staff Dashboard</a></li>
-        {% endif %}
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
 
         <li>
           <form method="post" action="{% url 'logout' %}">

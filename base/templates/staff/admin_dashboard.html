@@ -1,0 +1,21 @@
+{% extends 'master.html' %}
+
+{% block title %}TADA - Admin Dashboard{% endblock %}
+
+{% block style %}{% endblock %}
+
+{% block content %}
+    <h2>Admin Dashboard — {{ selected_company.title }}</h2>
+
+    {% include 'dash-components/company_selector.html' %}
+    {% include 'dash-components/job_postings.html' %}
+    {% include 'dash-components/submissions.html' %}
+    {% if is_candidate %}
+    {% load static %}
+    <img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break">
+    <h2>Candidate Dashboard</h2>
+    <p>Welcome to your dashboard! Here you can view your applications and manage your profile.</p>
+
+    {% include 'dash-components/my_applications.html' %}
+    {% endif %}
+{% endblock %}

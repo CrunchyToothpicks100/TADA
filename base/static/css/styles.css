@@ -19,6 +19,10 @@ h2, h1 {
     margin-top: auto;
 }
 
+.line-break {
+    width: min(600px, 100%); 
+}
+
 /* ── Navigation bar ───────────────────────────────── */
 .navbar {
     border-bottom: 1px solid #ccc;
@@ -56,7 +60,7 @@ h2, h1 {
 
 /* ── Card component ───────────────────────────────── */
 .card {
-    width: 40vw;
+    width: min(600px, 100%);
     display: flex;
     flex-direction: column;
     border: 2px solid #797979;
@@ -96,6 +100,16 @@ h2, h1 {
 
 .list-group .list-group-item:last-child {
     border-bottom: 2px solid #ddd;
+}
+
+/* ── Company selector ─────────────────────────────── */
+.company-selector {
+    margin-bottom: 20px;
+}
+
+.company-selector label {
+    font-weight: bold;
+    margin-right: 8px;
 }
 
 /* ── Form groups ──────────────────────────────────── */
