@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
+from base.context import staff_context
 
 def logout_view(request):
     from django.contrib.auth import logout
@@ -119,7 +120,6 @@ def candidate_dashboard(request):
 @login_required
 def staff_or_admin_dashboard(request):
     from base.models import Position, Submission
-    from base.context import staff_context
 
     ctx = staff_context(request)
     selected_company = ctx.get('selected_company')
@@ -139,7 +139,6 @@ def staff_or_admin_dashboard(request):
 @login_required
 def super_dashboard(request):
     from base.models import Position, Submission
-    from base.context import staff_context
 
     ctx = staff_context(request)
     selected_company = ctx.get('selected_company')

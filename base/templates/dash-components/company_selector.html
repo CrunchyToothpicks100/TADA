@@ -1,7 +1,7 @@
 {# Company selector — only shown when the user has access to multiple companies #}
 {% if all_companies|length > 1 %}
 <div class="company-selector">
-    <form method="get">
+    <form method="get" action="{% url 'dashboard' %}">
         <label for="company_id">Company:</label>
         <select name="company_id" id="company_id" onchange="this.form.submit()">
             {% for company in all_companies %}

@@ -46,6 +46,8 @@ There is no configured linter or formatter.
 
 `config/urls.py` mounts everything under `/` via `base.urls`. All named URL patterns are in `base/urls.py`.
 
+The single `/dashboard/` URL routes to the correct dashboard view based on user role (see `dashboard` view in `views.py`).
+
 ### Models (`base/models.py`)
 
 Core entities and key design decisions:
@@ -68,24 +70,36 @@ All models carry a `UUID external_id` for public-facing references (URLs should 
 
 Enforced manually in views (no Django permission framework):
 
-- **Superuser** (`is_superuser=True`) — sees all companies, always treated as admin
-- **Company Admin** (`CompanyStaff.is_admin=True`) — can create/edit positions for their company
-- **Company Staff** (`CompanyStaff.is_admin=False`) — read-only access to their company's data
-- **Candidate** — has a `candidate_profile` reverse relation on `User`
+- **Superuser** (`is_superuser=True`) — routed to `super_dashboard`, sees all companies, always treated as admin
+- **Company Admin** (`CompanyStaff.is_admin=True`) — routed to `staff_or_admin_dashboard`, can create/edit positions
+- **Company Staff** (`CompanyStaff.is_admin=False`) — routed to `staff_or_admin_dashboard`, read-only access
+- **Candidate** — routed to `candidate_dashboard`
 
-### Context processor (`base/context_processors.py`)
+### Dashboard routing
 
-`staff_context` runs on every request and injects three variables into all templates:
+All users hit `/dashboard/`. The `dashboard` view in `views.py` calls the appropriate view function directly (no redirect, URL stays `/dashboard/`):
 
-- `all_companies` — companies the user can access
-- `selected_company` — resolved from `?company_id=` query param, defaulting to the first
-- `is_company_admin` — whether the user is admin for the selected company
+```
+/dashboard/ → super_dashboard(request)        # superusers
+           → staff_or_admin_dashboard(request) # company staff/admin
+           → candidate_dashboard(request)      # candidates
+```
 
-Views that need `selected_company` for DB queries should call `staff_context(request).get('selected_company')` rather than re-implementing the resolution logic.
+### `staff_context` (`base/context_processors.py`)
+
+`staff_context` is **not** registered as a Django context processor — it is called directly from views that need it. It returns `all_companies`, `selected_company` (resolved from `?company_id=` query param), and `is_company_admin`. Views merge it into their context dict with `**ctx`.
 
 ### Templates
 
 All templates extend `base/templates/master.html`. The `{% block style %}` block injects page-level CSS into the `<head>`.
+
+Reusable dashboard components live in `base/templates/dash-components/` and are included via `{% include %}`:
+
+- `company_selector.html` — multi-company dropdown; always navigates to `/dashboard/?company_id=X`
+- `job_postings.html` — positions list with edit button (admin only)
+- `submissions.html` — applications list
+- `candidates_list.html` — candidate links
+- `my_applications.html` — candidate's own applications
 
 ### TODO features (not yet implemented)
 
@@ -93,4 +107,4 @@ See `TODO.md` for the full list. Key gaps:
 
 - `create_job` view (create a new Position from the staff dashboard)
 - `submission_detail` view (staff sets status; candidates edit answers)
-- `staff_candidates` / `staff_candidate_details` views (the URL patterns are commented out in `base/urls.py`)
+- `staff_candidates` / `staff_candidate_details` views (URL patterns are commented out in `base/urls.py`)
