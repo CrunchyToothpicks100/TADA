@@ -2,17 +2,17 @@
 <div class="card">
     <div class="card-header">
         <span>Job Postings</span>
-        {% if is_company_admin %}
+        {% if is_admin %}
         {# TODO: create_job not yet implemented — see TODO.md #}
-        <a href="#" class="btn btn-primary btn-sm">New Position</a>
+        <a href="#">New Position</a>
         {% endif %}
     </div>
     <div class="list-group">
         {% for position in positions %}
         <div class="list-group-item">
-            <h3>{{ position.title }}{% if not position.is_active %} <small class="text-muted">(inactive)</small>{% endif %}</h3>
+            <h3>{{ position.title }}{% if not position.is_active %} <small>(inactive)</small>{% endif %}</h3>
             <p>{{ position.description }}</p>
-            {% if is_company_admin %}
+            {% if is_admin %}
             <a href="{% url 'edit_position' position.id %}" class="btn btn-secondary btn-sm">Edit</a>
             {% endif %}
         </div>

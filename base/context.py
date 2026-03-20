@@ -7,10 +7,12 @@ def staff_context(request):
     # Superusers see all active companies; staff see only their own
     if user.is_superuser:
         all_companies = list(Company.objects.filter(is_active=True))
-        user_type = 'Super'
+        is_super = True
+        is_admin = True
     else:
         all_companies = [m.company for m in user.company_staff.select_related('company').all()]
-        user_type = None  # resolved after selected_company is known
+        is_super = False
+        is_admin = None  # resolved after selected_company is known
 
     # Determine selected company from ?company_id= query param, defaulting to the first
     company_id = request.GET.get('company_id')
@@ -21,10 +23,11 @@ def staff_context(request):
     # Resolve per-company admin status for non-superusers
     if not user.is_superuser:
         membership = user.company_staff.filter(company=selected_company).first()
-        user_type = 'Admin' if membership and membership.is_admin else 'Staff'
+        is_admin = True if membership and membership.is_admin else False
 
     return {
         'all_companies': all_companies,
         'selected_company': selected_company,
-        'user_type': user_type,
+        'is_admin': is_admin,
+        'is_super': is_super,
     }

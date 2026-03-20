@@ -130,7 +130,7 @@ def staff_or_admin_dashboard(request):
         'applications': Submission.objects.filter(position__company=selected_company) if selected_company else [],
         'is_candidate': Candidate.objects.filter(user=request.user).exists(),
     }
-    if ctx.get('user_type') == 'Admin':
+    if ctx.get('is_admin'):
         return render(request, 'staff/admin_dashboard.html', context)
     else:
         return render(request, 'staff/staff_dashboard.html', context)
@@ -185,7 +185,7 @@ def edit_position(request, id):
         position.employment_type = request.POST.get('employment_type', position.employment_type)
         position.is_active = request.POST.get('is_active') == 'on'
         position.save()
-        return redirect(f'/staff_dashboard/?company_id={position.company_id}')
+        return redirect(f'/dashboard/?company_id={position.company_id}')
 
     context = {
         'position': position,
