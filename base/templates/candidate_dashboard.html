@@ -4,9 +4,12 @@
 
 {% block style %}{% endblock %}
 
+{% load static %}
+
 {% block content %}
     <h2>Candidate Dashboard</h2>
     <p>Welcome to your dashboard! Here you can view your applications and manage your profile.</p>
 
     {% include 'dash-components/my_applications.html' %}
+    <img src="{% static 'images/br2.png' %}" alt="cool line break" class="line-break">
 {% endblock %}
