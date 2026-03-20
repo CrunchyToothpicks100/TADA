@@ -127,48 +127,21 @@ def candidate_dashboard(request):
 # Staff Dashboard View
 @login_required
 def staff_dashboard(request):
-    from base.models import Position
+    from base.models import Position, Submission
     user = request.user
 
-    staff_memberships = user.company_staff.select_related('company').all()
-    if not user.is_superuser and not staff_memberships.exists():
+    if not user.is_superuser and not user.company_staff.exists():
         return HttpResponse("Unauthorized: You are not a staff member.")
 
-    # Determine selected company from GET param, defaulting to first membership
-    from base.models import Company
-    if user.is_superuser:
-        all_companies = Company.objects.filter(is_active=True)
-    else:
-        all_companies = [m.company for m in staff_memberships]
-
-    selected_company = None
-
-    # reads the company_id query parameter from the URL (e.g. /staff_dashboard/?company_id=3)
-    # returns None if not provided
-    company_id = request.GET.get('company_id') 
-    if company_id:
-        # Searches the list of companies the user is associated with for a matching ID
-        selected_company = next((c for c in all_companies if str(c.id) == company_id), None)
-    if selected_company is None and all_companies:
-        # If no valid company_id provided, default to the first company in the list (if any)
-        selected_company = all_companies[0]
-
-    if user.is_superuser:
-        is_company_admin = True
-    else:
-        # Check if the user is an admin for the selected company
-        membership = staff_memberships.filter(company=selected_company).first()
-        is_company_admin = membership.is_admin if membership else False
+    # Reuse context processor to resolve selected_company for DB queries below
+    from base.context_processors import staff_context
+    selected_company = staff_context(request).get('selected_company')
 
     positions = Position.objects.filter(company=selected_company) if selected_company else []
     candidates = Candidate.objects.all()
-    from base.models import Submission
     applications = Submission.objects.filter(position__company=selected_company) if selected_company else []
 
     context = {
-        'all_companies': all_companies,
-        'selected_company': selected_company,
-        'is_company_admin': is_company_admin,
         'positions': positions,
         'applications': applications,
         'candidates': candidates,
