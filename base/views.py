@@ -127,7 +127,7 @@ def candidate_dashboard(request):
 # Staff Dashboard View
 @login_required
 def staff_dashboard(request):
-    from base.models import Position, CompanyStaff
+    from base.models import Position
     user = request.user
 
     staff_memberships = user.company_staff.select_related('company').all()
@@ -142,15 +142,21 @@ def staff_dashboard(request):
         all_companies = [m.company for m in staff_memberships]
 
     selected_company = None
-    company_id = request.GET.get('company_id')
+
+    # reads the company_id query parameter from the URL (e.g. /staff_dashboard/?company_id=3)
+    # returns None if not provided
+    company_id = request.GET.get('company_id') 
     if company_id:
+        # Searches the list of companies the user is associated with for a matching ID
         selected_company = next((c for c in all_companies if str(c.id) == company_id), None)
     if selected_company is None and all_companies:
+        # If no valid company_id provided, default to the first company in the list (if any)
         selected_company = all_companies[0]
 
     if user.is_superuser:
         is_company_admin = True
     else:
+        # Check if the user is an admin for the selected company
         membership = staff_memberships.filter(company=selected_company).first()
         is_company_admin = membership.is_admin if membership else False
 
@@ -172,7 +178,7 @@ def staff_dashboard(request):
 
 @login_required
 def edit_position(request, id):
-    from base.models import Position, CompanyStaff
+    from base.models import Position
     position = get_object_or_404(Position, id=id)
     user = request.user
 

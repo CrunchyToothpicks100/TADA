@@ -44,8 +44,7 @@
         <div class="card-header">
             <span>Job Postings</span>
             {% if is_company_admin %}
-            {# TODO: create_job not yet implemented — see TODO.md #}
-            {# <a href="{% url 'create_job' %}" class="btn btn-primary btn-sm">New Position</a> #}
+            {% comment %} <a href="{% url 'create_job' %}" class="btn btn-primary btn-sm">New Position</a> {% endcomment %}
             <a href="#" class="btn btn-primary btn-sm">New Position</a>
             {% endif %}
         </div>
@@ -92,7 +91,7 @@
         <div class="list-group">
             {% for candidate in candidates %}
             <div class="list-group-item">
-                <a href="/candidates/details/{{ candidate.id }}">{{ candidate }}</a>
+                <a href="{% url 'details' candidate.id %}">{{ candidate }}</a>
             </div>
             {% empty %}
             <div class="list-group-item">No candidates available.</div>

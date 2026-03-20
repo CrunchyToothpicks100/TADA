@@ -13,7 +13,6 @@ urlpatterns = [
     path('submit_application/', views.submit_application, name='submit_application'),
     path('candidate_dashboard/', views.candidate_dashboard, name='candidate_dashboard'),
     path('staff_dashboard/', views.staff_dashboard, name='staff_dashboard'),
-    # TODO: not yet implemented — see TODO.md
     # path('staff_dashboard/candidates/', views.staff_candidates, name='staff_candidates'),
     # path('staff_dashboard/candidates/<int:id>/', views.staff_candidate_details, name='staff_candidate_details'),
     path('staff_dashboard/positions/<int:id>/edit/', views.edit_position, name='edit_position'),
