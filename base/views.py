@@ -72,10 +72,6 @@ def home(request):
     return render(request, "home.html", {})
 
 
-def home2(request):
-    return render(request, "tailwinds/home2.html", {})
-
-
 def login(request):
     from django.contrib.auth import authenticate, login as auth_login
     template = loader.get_template('auth/login.html')
