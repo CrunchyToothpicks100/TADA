@@ -13,7 +13,7 @@
             <h3>{{ position.title }}{% if not position.is_active %} <small>(inactive)</small>{% endif %}</h3>
             <p>{{ position.description }}</p>
             {% if is_admin %}
-            <a href="{% url 'edit_position' position.id %}" class="btn btn-secondary btn-sm">Edit</a>
+            <a href="{% url 'edit_position' position.id %}">Edit</a>
             {% endif %}
         </div>
         {% empty %}
