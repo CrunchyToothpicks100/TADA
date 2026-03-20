@@ -1,19 +1,25 @@
 <nav class="navbar">
   <ul class="nav-list">
     <li><a href="{% url 'home' %}">Home</a></li>
+    <li>♦</li>
     <li><a href="{% url 'about' %}">About</a></li>
 
     {% if user.is_authenticated %}
-        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-
-        <li>
-          <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-          </form>
-        </li>
+    <li>♦</li>
+    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li>♦</li>
+    <li>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+      </form>
+    </li>
     {% else %}
-        <li><a href="{% url 'login' %}">Login</a></li>
+    <li>♦</li>
+    <li><a href="{% url 'login' %}">Login</a></li>
     {% endif %}
   </ul>
 </nav>
+
+{% comment %} {% load static %}
+<img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break"> {% endcomment %}

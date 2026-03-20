@@ -1,34 +1,34 @@
 {# Job Postings — admins can create/edit; staff can only view #}
 <div class="card" id="job-postings-card">
     <div class="card-header">
-        <span>Job Postings</span>
-        <span>
-            <button type="button" onclick="toggleJobFilters()">Filter</button>
-            {% if is_admin %}
-            <a href="{% url 'add_position' %}{% if selected_company %}?company_id={{ selected_company.id }}{% endif %}">
-                <button type="button">New Position</button>
-            </a>
-            {% endif %}
-        </span>
-    </div>
+        <div class="row-1">
+            <span>Job Postings</span>
+            <span style="display: flex; gap: 8px;">
+                <button type="button" onclick="toggleJobFilters()">Filter</button>
+                {% if is_admin %}
+                <button type="button" onclick="location.href='{% url 'add_position' %}{% if selected_company %}?company_id={{ selected_company.id }}{% endif %}'">New Position</button>
+                {% endif %}
+            </span>
+        </div>
 
-    {# Filter panel — hidden by default #}
-    <div class="card-header-2" id="job-filters" style="display: none;">
-        <label>
-            <input type="checkbox" id="filter-include-inactive" onchange="applyJobFilters()" checked>
-            Include inactive
-        </label>
-        <label>
-            Employment type:
-            <select id="filter-employment-type" onchange="applyJobFilters()">
-                <option value="">All</option>
-                <option value="full_time">Full-time</option>
-                <option value="part_time">Part-time</option>
-                <option value="contract">Contract</option>
-                <option value="internship">Internship</option>
-                <option value="temporary">Temporary</option>
-            </select>
-        </label>
+        {# Filter panel — hidden by default #}
+        <div class="row-2" id="job-filters" style="display: none;">
+            <label>
+                <input type="checkbox" id="filter-include-inactive" onchange="applyJobFilters()" checked>
+                Include inactive
+            </label>
+            <label>
+                Employment type:
+                <select id="filter-employment-type" onchange="applyJobFilters()">
+                    <option value="">All</option>
+                    <option value="full_time">Full-time</option>
+                    <option value="part_time">Part-time</option>
+                    <option value="contract">Contract</option>
+                    <option value="internship">Internship</option>
+                    <option value="temporary">Temporary</option>
+                </select>
+            </label>
+        </div>
     </div>
 
     <div class="list-group">

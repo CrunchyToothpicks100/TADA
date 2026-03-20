@@ -20,23 +20,23 @@ h2, h1 {
 }
 
 .line-break {
-    width: min(600px, 100%); 
+    width: min(500px, 77vw);
 }
 
 /* ── Navigation bar ───────────────────────────────── */
 .navbar {
-    border-bottom: 1px solid #ccc;
     padding: 16px 0;
 }
 
 .nav-list {
+    width: min(600px, 92vw);
     display: flex;
     flex-direction: row;
     align-items: center;
     list-style: none;
     padding: 0;
-    margin: 0;
-    justify-content: space-around;
+    margin: 0 auto;
+    justify-content: space-between;
 }
 
 .nav-list li {
@@ -44,13 +44,13 @@ h2, h1 {
 }
 
 .nav-list a {
-    text-decoration: none;
+    text-decoration: underline;
     color: #333;
     font-weight: 500;
 }
 
 .nav-list a:hover {
-    text-decoration: underline;
+    color: #ff0000;
 }
 
 /* ── Shared page layout ───────────────────────────── */
@@ -63,56 +63,53 @@ h2, h1 {
     width: min(600px, 92vw);
     display: flex;
     flex-direction: column;
-    border: 2px solid #797979;
     margin: 0 auto 24px auto;
 }
 
 .card-header {
-    background-color: #f8f9fa;
-    border: 2px solid #fff;
+    border: 2px solid #1b1b1b;
+    background-color: #ffbebe;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header .row-1 {
     font-size: 1.25em;
     font-style: italic;
     padding: 3px 5px;
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
 }
 
-/* ── Card sub-header (filter panel) ──────────────── */
-.card-header-2 {
-    background-color: #eef0f2;
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    padding: 8px 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: center;
+.card-header .row-2 {
     font-size: 0.9em;
     font-style: normal;
+    padding: 3px 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 /* ── List groups ──────────────────────────────────── */
 .list-group {
+    display: flex;
+    flex-direction: column;
     margin-bottom: 0;
+    gap: 5px;
+}
+
+.list-group * {
+    text-align: left;
 }
 
 .list-group .list-group-item {
-    border-inline: 2px solid #ddd;
     padding: 12px 16px;
     list-style-type: none;
 }
 
-.list-group .list-group-item:first-child {
-    border-top: 2px solid #ddd;
-}
-
-
 .list-group .list-group-item:first-child h3 {
-    margin-top: 0;
-}
-
-.list-group .list-group-item:last-child {
-    border-bottom: 2px solid #ddd;
+    margin-top: 5px;
 }
 
 /* ── Company selector ─────────────────────────────── */

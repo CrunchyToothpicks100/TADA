@@ -7,7 +7,10 @@
 {% block style %}
 {% endblock %}
 
+{% load static %}
+
 {% block content %}
+    <img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break">
     <h1>Welcome to TADA!</h1>
     <h3><a href="/application/">Apply for job!</a></h3>
 {% endblock %}
