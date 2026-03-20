@@ -60,7 +60,7 @@ h2, h1 {
 
 /* ── Card component ───────────────────────────────── */
 .card {
-    width: min(600px, 100%);
+    width: min(600px, 92vw);
     display: flex;
     flex-direction: column;
     border: 2px solid #797979;
@@ -75,6 +75,20 @@ h2, h1 {
     padding: 3px 5px;
     display: flex;
     justify-content: space-between;
+}
+
+/* ── Card sub-header (filter panel) ──────────────── */
+.card-header-2 {
+    background-color: #eef0f2;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    font-size: 0.9em;
+    font-style: normal;
 }
 
 /* ── List groups ──────────────────────────────────── */

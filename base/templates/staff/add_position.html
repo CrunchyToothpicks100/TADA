@@ -1,0 +1,43 @@
+{% extends 'master.html' %}
+
+{% block title %}TADA - New Position{% endblock %}
+
+{% block style %}{% endblock %}
+
+{% block content %}
+    <h2>New Position — {{ company.title }}</h2>
+    <p><a href="/dashboard/?company_id={{ company.id }}">← Back to Dashboard</a></p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="company_id" value="{{ company.id }}">
+
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required maxlength="160">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="employment_type">Employment Type</label>
+            <select id="employment_type" name="employment_type">
+                {% for value, label in employment_type_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_active" checked>
+                Active
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Position</button>
+    </form>
+{% endblock %}

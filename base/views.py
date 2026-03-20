@@ -167,6 +167,40 @@ def dashboard(request):
 
 
 @login_required
+def add_position(request):
+    from base.models import Position
+
+    # Resolve which company to add the position to
+    if not request.user.is_superuser:
+        membership = request.user.company_staff.filter(is_admin=True).first()
+        if not membership:
+            return HttpResponse("Unauthorized: You are not an admin for any company.")
+        company = membership.company
+    else:
+        from base.models import Company
+        company_id = request.GET.get('company_id') or request.POST.get('company_id')
+        company = get_object_or_404(Company, id=company_id) if company_id else None
+        if not company:
+            return HttpResponse("Please specify a company_id.")
+
+    if request.method == 'POST':
+        position = Position.objects.create(
+            company=company,
+            title=request.POST.get('title', '').strip(),
+            description=request.POST.get('description', '').strip(),
+            employment_type=request.POST.get('employment_type', 'full_time'),
+            is_active=request.POST.get('is_active') == 'on',
+        )
+        return redirect(f'/dashboard/?company_id={position.company_id}')
+
+    context = {
+        'company': company,
+        'employment_type_choices': Position.EMPLOYMENT_TYPE_CHOICES,
+    }
+    return render(request, 'staff/add_position.html', context)
+
+
+@login_required
 def edit_position(request, id):
     from base.models import Position
     position = get_object_or_404(Position, id=id)

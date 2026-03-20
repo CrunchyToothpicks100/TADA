@@ -1,16 +1,45 @@
 {# Job Postings — admins can create/edit; staff can only view #}
-<div class="card">
+<div class="card" id="job-postings-card">
     <div class="card-header">
         <span>Job Postings</span>
-        {% if is_admin %}
-        {# TODO: create_job not yet implemented — see TODO.md #}
-        <a href="#">New Position</a>
-        {% endif %}
+        <span>
+            <button type="button" onclick="toggleJobFilters()">Filter</button>
+            {% if is_admin %}
+            <a href="{% url 'add_position' %}{% if selected_company %}?company_id={{ selected_company.id }}{% endif %}">
+                <button type="button">New Position</button>
+            </a>
+            {% endif %}
+        </span>
     </div>
+
+    {# Filter panel — hidden by default #}
+    <div class="card-header-2" id="job-filters" style="display: none;">
+        <label>
+            <input type="checkbox" id="filter-include-inactive" onchange="applyJobFilters()" checked>
+            Include inactive
+        </label>
+        <label>
+            Employment type:
+            <select id="filter-employment-type" onchange="applyJobFilters()">
+                <option value="">All</option>
+                <option value="full_time">Full-time</option>
+                <option value="part_time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Internship</option>
+                <option value="temporary">Temporary</option>
+            </select>
+        </label>
+    </div>
+
     <div class="list-group">
         {% for position in positions %}
-        <div class="list-group-item">
-            <h3>{{ position.title }}{% if not position.is_active %} <small>(inactive)</small>{% endif %}</h3>
+        <div class="list-group-item job-posting-item"
+             data-active="{{ position.is_active|yesno:'true,false' }}"
+             data-employment-type="{{ position.employment_type }}">
+            <h3>{{ position.title }} |
+                <small>{{ position.get_employment_type_display }}</small>
+                {% if not position.is_active %} <small style="color: #888;">(inactive)</small>{% endif %}
+            </h3>
             <p>{{ position.description }}</p>
             {% if is_admin %}
             <a href="{% url 'edit_position' position.id %}">Edit</a>
@@ -21,3 +50,25 @@
         {% endfor %}
     </div>
 </div>
+
+<script>
+    function toggleJobFilters() {
+        const panel = document.getElementById('job-filters');
+        panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function applyJobFilters() {
+        const includeInactive = document.getElementById('filter-include-inactive').checked;
+        const employmentType = document.getElementById('filter-employment-type').value;
+
+        document.querySelectorAll('.job-posting-item').forEach(function(item) {
+            const isActive = item.dataset.active === 'true';
+            const type = item.dataset.employmentType;
+
+            const passesActive = includeInactive || isActive;
+            const passesType = employmentType === '' || type === employmentType;
+
+            item.style.display = (passesActive && passesType) ? '' : 'none';
+        });
+    }
+</script>
