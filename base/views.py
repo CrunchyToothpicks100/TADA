@@ -46,7 +46,12 @@ def application(request, position_id, page):
         )
         return redirect('/submit_application/')
 
-    return render(request, 'application.html')
+    context = {
+        'position_id': position_id,
+        'page': page,
+    }
+
+    return render(request, 'application.html', context)
 
 
 def about(request):
@@ -70,7 +75,12 @@ def details(request, id):  #id comes from the URL
 
 
 def home(request):
-    return render(request, "home.html", {})
+    from base.models import Company, Position
+    context = {
+        'companies': Company.objects.filter(is_active=True),
+        'positions': Position.objects.filter(is_active=True),
+    }
+    return render(request, "home.html", context) 
 
 
 def login(request):

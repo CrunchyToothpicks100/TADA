@@ -10,7 +10,79 @@
 {% load static %}
 
 {% block content %}
-    <img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break">
-    <h1>Welcome to TADA!</h1>
-    <h3><a href="/application/">Apply for job!</a></h3>
+<img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break">
+<h1>Welcome to TADA!</h1>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row-1">
+            <span>Careers</span>
+            <button type="button" onclick="toggleJobFilters()">Filter</button>
+        </div>
+
+        {# Filter panel — hidden by default #}
+        <div class="row-2" id="job-filters" style="display: none;">
+            <label>
+                Employment type:
+                <select id="filter-employment-type" onchange="applyFilters()">
+                    <option value="">All</option>
+                    <option value="full_time">Full-time</option>
+                    <option value="part_time">Part-time</option>
+                    <option value="contract">Contract</option>
+                    <option value="internship">Internship</option>
+                    <option value="temporary">Temporary</option>
+                </select>
+            </label>
+
+            <label>
+                Company:
+                <select id="filter-company" onchange="applyFilters()">
+                    <option value="">All</option>
+                    {% for company in companies %}
+                    <option value="{{ company.id }}">{{ company.title }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+    </div>
+
+    <div class="list-group">
+        {% for position in positions %}
+        <div class="list-group-item job-posting-item"
+            data-employment-type="{{ position.employment_type }}"
+            data-company-id="{{ position.company.id }}">
+            <h3 class="horiz-flex-space-between">
+                <span>{{ position.title }}</span>
+                <small class="horiz-flex">
+                    <span>{{ position.get_employment_type_display }}</span> ♦ 
+                    <span>{{ position.company.title }}</span>
+                </small>
+            </h3>
+            <p>{{ position.description }}</p>
+            <a href="{% url 'application' position.id 1 %}">Apply</a>
+        </div>
+        {% empty %}
+        <div class="list-group-item">No jobs available.</div>
+        {% endfor %}
+    </div> 
+</div>
+<img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break">
+    
+<script>
+    function toggleJobFilters() {
+        const panel = document.getElementById('job-filters');
+        panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function applyFilters() {
+        const company_id = document.getElementById('filter-company').value;
+        const employmentType = document.getElementById('filter-employment-type').value;
+
+        document.querySelectorAll('.job-posting-item').forEach(function(item) {
+            const passesId = company_id === '' || item.dataset.companyId === company_id;
+            const passesType = employmentType === '' || item.dataset.employmentType === employmentType;
+            item.style.display = (passesId && passesType) ? '' : 'none';
+        });
+    }
+</script>
 {% endblock %}
