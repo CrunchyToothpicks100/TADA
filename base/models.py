@@ -303,6 +303,9 @@ class Question(models.Model):
     is_required = models.BooleanField(default=False)
     sort_order = models.IntegerField(default=0)
 
+    # page number in the application form; page 1 is reserved for candidate info + resume upload
+    page = models.PositiveSmallIntegerField(default=2)
+
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

@@ -10,7 +10,9 @@
 {% block content %}
     <div class="card">
         <div class="card-header">
-            {{ mycandidate.first_name }} {{ mycandidate.last_name }}
+            <div class="row-1">
+                {{ mycandidate.first_name }} {{ mycandidate.last_name }}
+            </div>
         </div>
         <div class="list-group">
             <li class="list-group-item">Email: {{ mycandidate.email }}</li>

@@ -7,6 +7,7 @@
 {% load static %}
 
 {% block content %}
+    <img src="{% static 'images/br2.png' %}" alt="cool line break" class="line-break">
     <h2>Super Dashboard — {{ selected_company.title }}</h2>
 
     {% include 'dash-components/company_selector.html' %}
@@ -14,10 +15,11 @@
     {% include 'dash-components/submissions.html' %}
     {% include 'dash-components/candidates_list.html' %}
     {% if is_candidate %}
+    <img src="{% static 'images/br3.png' %}" alt="cool line break" class="line-break">
     <h2>Candidate Dashboard</h2>
     <p>Welcome to your dashboard! Here you can view your applications and manage your profile.</p>
 
     {% include 'dash-components/my_applications.html' %}
     {% endif %}
-    <img src="{% static 'images/br2.png' %}" alt="cool line break" class="line-break">
+    <img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break">
 {% endblock %}

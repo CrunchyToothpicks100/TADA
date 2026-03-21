@@ -22,7 +22,7 @@ def submit_application(request):
     return render(request, 'submit_application.html')
 
 
-def application(request):
+def application(request, position_id, page):
     template = loader.get_template('application.html')
 
     if request.method == 'POST':
@@ -225,3 +225,18 @@ def edit_position(request, id):
         'employment_type_choices': Position.EMPLOYMENT_TYPE_CHOICES,
     }
     return render(request, 'staff/edit_position.html', context)
+
+@login_required
+def delete_position(request, id):
+    from base.models import Position
+    position = get_object_or_404(Position, id=id)
+    user = request.user
+
+    # Only company admins for this position's company, or superusers, may delete
+    if not user.is_superuser:
+        return HttpResponse("Unauthorized: Only superusers can delete positions.")
+
+    if request.method == 'POST':
+        company_id = position.company_id
+        position.delete()
+        return redirect(f'/dashboard/?company_id={company_id}')
