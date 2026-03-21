@@ -33,14 +33,16 @@ pymg create_cand    # creates 2 sample candidates
 pymg create_staff   # creates a sample company with admin + staff users
 ```
 
-There is no configured linter or formatter.
+There is no configured linter or formatter. Dependencies are managed with Poetry (see `pyproject.toml`).
+
+Tests are not yet written — `base/tests.py` exists but is empty.
 
 ## Architecture
 
 ### Project layout
 
 - `config/` — Django project settings and root URL conf
-- `base/` — the single Django app; contains all models, views, urls, templates, and context processors
+- `base/` — the single Django app; contains all models, views, urls, templates, and `context.py`
 
 ### URL routing
 
@@ -64,11 +66,11 @@ Core entities and key design decisions:
 | `Answer` | Typed columns: `int_value`, `bool_value`, `text_value`, `choice` (FK to `QuestionChoice`). |
 | `Note` | Staff notes on candidates; tracks `edited_at`. |
 
-All models carry a `UUID external_id` for public-facing references (URLs should use this, not the integer PK).
+All models carry a `UUID external_id` for public-facing references (URLs should use this, not the integer PK). Note: current URL patterns still use `<int:id>` — this is a known design gap.
 
 ### Roles and permissions
 
-Enforced manually in views (no Django permission framework):
+Enforced manually in views (no Django permission framework). Failed checks return a plain `HttpResponse("Unauthorized: ...")` — not a redirect or error page.
 
 - **Superuser** (`is_superuser=True`) — routed to `super_dashboard`, sees all companies, always treated as admin
 - **Company Admin** (`CompanyStaff.is_admin=True`) — routed to `staff_or_admin_dashboard`, can create/edit positions
@@ -85,9 +87,9 @@ All users hit `/dashboard/`. The `dashboard` view in `views.py` calls the approp
            → candidate_dashboard(request)      # candidates
 ```
 
-### `staff_context` (`base/context_processors.py`)
+### `staff_context` (`base/context.py`)
 
-`staff_context` is **not** registered as a Django context processor — it is called directly from views that need it. It returns `all_companies`, `selected_company` (resolved from `?company_id=` query param), and `is_company_admin`. Views merge it into their context dict with `**ctx`.
+`staff_context` is **not** registered as a Django context processor — it is called directly from views that need it. It returns `all_companies`, `selected_company` (resolved from `?company_id=` query param using the integer PK), `is_admin`, and `is_super`. Views merge it into their context dict with `**ctx`.
 
 ### Templates
 
