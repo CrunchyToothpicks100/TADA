@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 
 from django.http import HttpResponse
-from django.template import loader
 from django.shortcuts import redirect
 
 from base.models import Candidate
@@ -23,8 +22,6 @@ def submit_application(request):
 
 
 def application(request, position_id, page):
-    template = loader.get_template('application.html')
-
     if request.method == 'POST':
         # Process the submitted application data
         first_name = request.POST.get('first_name', '').strip()
@@ -85,7 +82,6 @@ def home(request):
 
 def login(request):
     from django.contrib.auth import authenticate, login as auth_login
-    template = loader.get_template('auth/login.html')
 
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
