@@ -14,7 +14,7 @@ from base.user_context import user_context
 def logout_view(request):
     from django.contrib.auth import logout
     logout(request)
-    return redirect('/')
+    return redirect('/careers/')
 
 
 def submit_application(request):
@@ -41,7 +41,7 @@ def application(request, position_id, page):
             linkedin_url=linkedin_url,
             bio=bio,
         )
-        return redirect('/submit_application/')
+        return redirect(f'/submit_application/')
 
     context = {
         'position_id': position_id,
@@ -65,11 +65,19 @@ def details(request, id):  #id comes from the URL
 
 def home(request):
     from base.models import Company, Position
+    if request.user.is_authenticated:
+        return redirect(f'/dashboard/')
+    else:
+        return redirect(f'/careers/')
+
+
+def careers(request):
+    from base.models import Company, Position
     context = {
         'companies': Company.objects.filter(is_active=True),
         'positions': Position.objects.filter(is_active=True),
     }
-    return render(request, "home.html", context) 
+    return render(request, "careers.html", context) 
 
 
 def login(request):
@@ -89,7 +97,7 @@ def login(request):
         user = authenticate(request, username=user_obj.username, password=password)
         if user is not None:
             auth_login(request, user)
-            return redirect('dashboard')
+            return redirect(f'/dashboard/')
         else:
             return HttpResponse("Invalid email or password. (Invalid credentials).")
 

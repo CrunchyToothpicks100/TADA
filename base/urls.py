@@ -3,6 +3,7 @@ import base.views as views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('careers/', views.careers, name='careers'),
     path('about/', views.about, name='about'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -14,7 +15,5 @@ urlpatterns = [
     path('dashboard/positions/add/', views.add_position, name='add_position'),
     path('dashboard/positions/<int:id>/edit/', views.edit_position, name='edit_position'),
     path('dashboard/positions/<int:id>/delete/', views.delete_position, name='delete_position'),
-    # path('dashboard/applications/', views.view_applications, name='view_applications'),
-
     # Make sure to test all enumeration attacks and edge cases, so I don't completely embarass myself
 ]
