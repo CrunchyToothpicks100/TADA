@@ -42,7 +42,7 @@
             </h3>
             <p>{{ position.description }}</p>
             {% if is_admin %}
-            <a href="{% url 'edit_position' position.id %}">Edit</a>
+            <div><a href="{% url 'edit_position' position.id %}">Edit</a></div>
             {% endif %}
         </div>
         {% empty %}

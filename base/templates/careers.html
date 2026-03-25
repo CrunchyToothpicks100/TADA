@@ -48,18 +48,18 @@
 
     <div class="list-group">
         {% for position in positions %}
-        <div class="list-group-item job-posting-item"
+        <div class="list-group-item"
             data-employment-type="{{ position.employment_type }}"
             data-company-id="{{ position.company.id }}">
-            <h3 class="horiz-flex-space-between">
+            <h3 class="horiz-flex-space-between" style="border-bottom: 2px solid var(--color-primary);">
                 <span>{{ position.title }}</span>
                 <small class="horiz-flex">
                     <span>{{ position.get_employment_type_display }}</span> ♦ 
                     <span>{{ position.company.title }}</span>
                 </small>
             </h3>
-            <p>{{ position.description }}</p>
-            <a href="{% url 'application' position.id 1 %}">Apply</a>
+            <div>{{ position.description }}</div>
+            <div><a href="{% url 'application' position.id 1 %}">Apply</a></div>
         </div>
         {% empty %}
         <div class="list-group-item">No jobs available.</div>

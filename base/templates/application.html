@@ -4,41 +4,41 @@
     TADA - Application
 {% endblock %}
 
-{% block style %}
-{% endblock %}
+{% load static %}
 
 {% block content %}
+    <img src="{% static 'images/br1-cherry.png' %}" alt="cool line break" class="line-break">
     <h2>Job Application</h2>
 
     {% if page == 1 %}
-    <form method="POST">
+    <form method="POST" class="page-form">
         {% csrf_token %}
-        <div>
+        <div class="form-group">
             <label for="first_name">First Name: </label>
             <input type="text" id="first_name" name="first_name" required>
         </div>
 
-        <div>
+        <div class="form-group">
             <label for="last_name">Last Name: </label>
             <input type="text" id="last_name" name="last_name" required>
         </div>
 
-        <div>
+        <div class="form-group">
             <label for="email">Email: </label>
             <input type="email" id="email" name="email" required>
         </div>
 
-        <div>
+        <div class="form-group">
             <label for="phone">Phone: </label>
             <input type="tel" id="phone" name="phone">
         </div>
 
-        <div>
+        <div class="form-group">
             <label for="linkedin_url">LinkedIn URL: </label>
             <input type="url" id="linkedin_url" name="linkedin_url">
         </div>
 
-        <div>
+        <div class="form-group">
             <label for="bio">Short Bio: </label>
             <textarea id="bio" name="bio" rows="4"></textarea>
         </div>

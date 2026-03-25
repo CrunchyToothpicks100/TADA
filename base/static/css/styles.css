@@ -46,6 +46,22 @@ h2, h1 {
     margin-top: auto;
 }
 
+button {
+    background-color: var(--color-primary);
+    color: var(--color-border);
+    border-radius: 5px;
+    padding: 3px;
+}
+
+button:hover {
+    color: var(--color-accent);
+}
+
+.medium-btn {
+    font-size: 1.1em;
+    padding: 6px 9px;
+}
+
 .page-form {
     width: min(400px, 30%)
 }
@@ -113,6 +129,7 @@ h2, h1 {
 .nav-list a {
     text-decoration: underline;
     color: var(--color-link);
+    font-size: 1.1em;
     font-weight: 500;
 }
 
@@ -183,7 +200,7 @@ h2, h1 {
 .list-group .list-group-item {
     margin: 16px 0;
     border-left: 4px solid var(--color-border);
-    padding: 2px 10px;
+    padding: 2px 14px 2px 10px;
     list-style-type: none;
 }
 
@@ -213,9 +230,9 @@ h2, h1 {
     margin-bottom: 4px;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+.form-group > input,
+.form-group > textarea,
+.form-group > select {
     width: 100%;
     padding: 6px 10px;
     box-sizing: border-box;
