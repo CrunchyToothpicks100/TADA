@@ -7,12 +7,10 @@ html {
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: block;
+    justify-items: center;
     text-align: center;
     margin: 0;
-    padding: 20px;
 }
 
 h2, h1 {
@@ -48,8 +46,15 @@ h2, h1 {
 
 /* ── Navigation bar ───────────────────────────────── */
 .navbar {
+    text-align: center;
+    align-items: center;
     width: min(600px, 92vw);
     padding: 16px 0;
+}
+
+.navbar img {
+    width: 100px;
+    margin: 0 0 20px 0;
 }
 
 .nav-list {
@@ -77,11 +82,6 @@ h2, h1 {
 
 .nav-list a:hover {
     color: #ff0000;
-}
-
-/* ── Shared page layout ───────────────────────────── */
-.page-container {
-    margin-top: 20px;
 }
 
 /* ── Card component ───────────────────────────────── */

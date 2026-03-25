@@ -1,4 +1,7 @@
+{% load static %}
+
 <nav class="navbar">
+  <img src="{% static 'images/TADA.png' %}">
   <ul class="nav-list">
     <li><a href="{% url 'home' %}">Home</a></li>
     <li>♦</li>
@@ -20,6 +23,3 @@
     {% endif %}
   </ul>
 </nav>
-
-{% comment %} {% load static %}
-<img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break"> {% endcomment %}
