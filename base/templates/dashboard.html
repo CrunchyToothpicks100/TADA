@@ -1,13 +1,12 @@
 {% extends 'master.html' %}
 
-{% block title %}{{ selected_company.title }} Dashboard
-{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% load static %}
 
 {% block content %}
     <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
-    <img src="{% static 'images/br3.png' %}" alt="cool line break" class="line-break">
+    <img src="{% static 'images/br3-cherry.png' %}" alt="cool line break" class="line-break">
     <h2>{{ selected_company.title }} Dashboard
         {% if is_super %} - Superuser
         {% elif is_admin %} - Admin
@@ -29,7 +28,7 @@
 
     {% if is_candidate %}
         {% if is_staff %}
-        <img src="{% static 'images/br3.png' %}" alt="cool line break" class="line-break">
+        <img src="{% static 'images/br3-cherry.png' %}" alt="cool line break" class="line-break">
         <h2>Candidate Dashboard</h2>
         {% endif %}
 
@@ -40,7 +39,7 @@
         </div>
     {% endif %}
 
-    <img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break">
+    <img src="{% static 'images/br1-cherry.png' %}" alt="cool line break" class="line-break">
 
     <script>
         document.querySelectorAll('.grid').forEach(function(grid) {
