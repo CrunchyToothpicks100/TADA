@@ -1,16 +1,16 @@
 {% load static %}
 
-<nav class="navbar">
+<nav class="navbar horiz-flex-space-between">
   <img src="{% static 'images/TADA.png' %}">
   <ul class="nav-list">
     <li><a href="{% url 'home' %}">Home</a></li>
-    <li>♦</li>
+    ♦
     <li><a href="{% url 'about' %}">About</a></li>
 
     {% if user.is_authenticated %}
-    <li>♦</li>
+    ♦
     <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-    <li>♦</li>
+    ♦
     <li>
       <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
@@ -18,8 +18,8 @@
       </form>
     </li>
     {% else %}
-    <li>♦</li>
-    <li><a href="{% url 'login' %}">Login</a></li>
+    ♦
+    <li><a href="{% url 'login' %}">Sign In</a></li>
     {% endif %}
   </ul>
 </nav>

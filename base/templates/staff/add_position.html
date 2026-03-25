@@ -8,7 +8,7 @@
     <h2>New Position — {{ company.title }}</h2>
     <p><a href="/dashboard/?company_id={{ company.id }}">← Back to Dashboard</a></p>
 
-    <form method="post">
+    <form method="post" class="page-form">
         {% csrf_token %}
         <input type="hidden" name="company_id" value="{{ company.id }}">
 

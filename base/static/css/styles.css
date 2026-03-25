@@ -1,9 +1,38 @@
+/* ── Color palette ────────────────────────────────── */
+
+/* Mint (original)
+:root {
+    --color-bg: #bfffea;
+    --color-link: #bfffea;
+    --color-link-hover: #ff0000;
+    --color-text: #000000;
+    --color-primary: #152620;
+    --color-primary-text: #ffffff;
+    --color-card-bg: #ffffff;
+    --color-border: #bbbbbb;
+} */
+
+/* Cherry + lemon */
+:root {
+    --color-bg: #fdf0f0;
+    --color-link: #f7d6d6;
+    --color-accent: #f5e642;
+    --color-text: #1a0a0a;
+    --color-primary: #3a0c23;
+    --color-primary-text: #fff5f5;
+    --color-card-bg: #ffffff;
+    --color-border: #d9808c;
+}
+
 /* Base styles for TADA application */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 html {
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
-    scrollbar-gutter: stable;
+    background-color: var(--color-bg);
+    color: var(--color-text);
 }
 
 body {
@@ -17,8 +46,14 @@ h2, h1 {
     margin-top: auto;
 }
 
+.page-form {
+    width: min(400px, 30%)
+}
+
 .line-break {
-    width: min(500px, 77vw);
+    display: block;
+    margin: 0 auto;
+    width: min(500px, 77%);
 }
 
 .horiz-flex {
@@ -46,72 +81,89 @@ h2, h1 {
 
 /* ── Navigation bar ───────────────────────────────── */
 .navbar {
+    width: 100%;
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
     text-align: center;
     align-items: center;
-    width: min(600px, 92vw);
-    padding: 16px 0;
+    padding: 10px;
+    margin-bottom: 20px;
 }
 
 .navbar img {
     width: 100px;
-    margin: 0 0 20px 0;
+    margin-left: 8px;
 }
 
 .nav-list {
-    width: min(600px, 92vw);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     list-style: none;
     padding: 0;
-    margin: 0 auto;
-    justify-content: space-between;
+    justify-content: space-evenly;
     gap: 4px 0;
 }
 
 .nav-list li {
-    margin-inline: 20px;
+    margin-inline: 40px;
 }
 
 .nav-list a {
     text-decoration: underline;
-    color: #333;
+    color: var(--color-link);
     font-weight: 500;
 }
 
 .nav-list a:hover {
-    color: #ff0000;
+    color: var(--color-accent);
+}
+
+/* ── grid for Masonry.js ───────────────────────────────── */
+.grid {
+    width: 94%;
+    margin: 0 auto;
+}
+
+.grid-sizer, .card {
+    width: 48%;
+}
+
+.gutter-sizer {
+    width: 4%;
 }
 
 /* ── Card component ───────────────────────────────── */
 .card {
-    width: min(600px, 92vw);
+    background-color: var(--color-card-bg);
     display: flex;
     flex-direction: column;
     margin: 0 auto 24px auto;
+    border-radius: 10px;
 }
 
 .card-header {
-    border: 2px solid #1b1b1b;
-    background-color: #ffbebe;
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
     display: flex;
+    padding: 7px 7px;
+    border-radius: 8px;
     flex-direction: column;
 }
 
 .card-header .row-1 {
     font-size: 1.25em;
     font-style: italic;
-    padding: 3px 5px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
 .card-header .row-2 {
+    margin-top: 7px;
     font-size: 0.9em;
     font-style: normal;
-    padding: 3px 5px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -122,7 +174,6 @@ h2, h1 {
     display: flex;
     flex-direction: column;
     margin-bottom: 0;
-    gap: 5px;
 }
 
 .list-group * {
@@ -130,9 +181,9 @@ h2, h1 {
 }
 
 .list-group .list-group-item {
-    margin: 8px 0;
-    border-left: 2px solid #bbbbbb;
-    padding: 4px 16px;
+    margin: 16px 0;
+    border-left: 4px solid var(--color-border);
+    padding: 2px 10px;
     list-style-type: none;
 }
 
@@ -157,11 +208,12 @@ h2, h1 {
 
 .form-group label {
     display: block;
-    font-weight: bold;
+    text-align: left;
+    font-weight: 600;
     margin-bottom: 4px;
 }
 
-.form-group input[type="text"],
+.form-group input,
 .form-group textarea,
 .form-group select {
     width: 100%;

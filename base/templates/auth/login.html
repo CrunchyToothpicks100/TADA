@@ -5,23 +5,27 @@
 {% block style %}
 {% endblock %}
 
+{% load static %}
+
 {% block content %}    
-    <h2>Sign In</h2>
+    <img src="{% static 'images/br1.png' %}" alt="cool line break" class="line-break">
+    <h2 style="margin-bottom: 0;">Sign In</h2>
             
-    <form method="POST">  
+    <form method="POST" class="page-form">  
         {% csrf_token %}
-        <div>
+        <div class="form-group">
             <label for="email">Email: </label>
             <input type="email" id="email" name="email" required>
         </div>
 
-        <div>   
+        <div class="form-group">   
             <label for="password">Password: </label>
             <input type="password" id="password" name="password" required>
         </div>
 
-        <button type="submit">Sign In</button>
-
-        <a href='/forgotpw/'>Forgot Password</a>
+        <div class="horiz-flex-space-between">
+            <button type="submit" style="font-size: 1em; padding: 5px;">Sign In</button>
+            <a href='/forgotpw/'>Forgot Password</a>
+        </div>
     </form>
 {% endblock %}

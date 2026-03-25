@@ -4,12 +4,12 @@
         <span class="row-1">Submissions</span>
     </div>
     <div class="list-group">
-        {% for application in applications %}
+        {% for submission in submissions %}
         <div class="list-group-item">
-            <h3>{{ application.candidate }} — {{ application.position }}</h3>
-            <p>Status: {{ application.status }}</p>
-            {# TODO: application_detail not yet implemented — see TODO.md #}
-            <a href="#" class="btn btn-primary btn-sm">View</a>
+            <h3>{{ submission.candidate }} — {{ submission.position }}</h3>
+            <p>Status: {{ submission.status }}</p>
+            {# TODO: submission_detail not yet implemented — see TODO.md #}
+            <a href="#">View</a>
         </div>
         {% empty %}
         <div class="list-group-item">No submissions available.</div>

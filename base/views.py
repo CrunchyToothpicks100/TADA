@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from base.context import staff_context
+from base.user_context import user_context
 
 def logout_view(request):
     from django.contrib.auth import logout
@@ -53,14 +53,6 @@ def application(request, position_id, page):
 
 def about(request):
     return render(request, "about.html")
-
-
-def candidates(request):
-    mycandidates = Candidate.objects.all()
-    context = {
-        'mycandidates': mycandidates
-    }
-    return render(request, 'all_candidates.html', context)
 
 
 def details(request, id):  #id comes from the URL
@@ -108,68 +100,10 @@ def forgotpw(request):
     return render(request, 'auth/forgotpw.html')
 
 
-# Candidate Dashboard View
-@login_required
-def candidate_dashboard(request):
-    user = request.user
-    candidate = getattr(user, 'candidate_profile', None)
-    applications = []
-    context = {
-        'applications': applications,
-        'candidate': candidate,
-        'is_candidate': True,
-    }
-    return render(request, 'candidate_dashboard.html', context)
-
-
-# Staff Dashboard View
-@login_required
-def staff_or_admin_dashboard(request):
-    from base.models import Position, Submission
-
-    ctx = staff_context(request)
-    selected_company = ctx.get('selected_company')
-
-    context = {
-        **ctx,
-        'positions': Position.objects.filter(company=selected_company) if selected_company else [],
-        'applications': Submission.objects.filter(position__company=selected_company) if selected_company else [],
-        'is_candidate': Candidate.objects.filter(user=request.user).exists(),
-    }
-    if ctx.get('is_admin'):
-        return render(request, 'staff/admin_dashboard.html', context)
-    else:
-        return render(request, 'staff/staff_dashboard.html', context)
-
-# Super Dashboard View
-@login_required
-def super_dashboard(request):
-    from base.models import Position, Submission
-
-    ctx = staff_context(request)
-    selected_company = ctx.get('selected_company')
-
-    context = {
-        **ctx,
-        'positions': Position.objects.filter(company=selected_company) if selected_company else [],
-        'candidates': Candidate.objects.all(),
-        'applications': Submission.objects.filter(position__company=selected_company) if selected_company else [],
-        'is_candidate': Candidate.objects.filter(user=request.user).exists(),
-    }
-    return render(request, 'staff/super_dashboard.html', context)
-
-
 @login_required
 def dashboard(request):
-    user = request.user
-    
-    if user.is_superuser:
-        return super_dashboard(request)
-    elif user.company_staff.exists():
-        return staff_or_admin_dashboard(request)
-    elif Candidate.objects.filter(user=request.user).exists():
-        return candidate_dashboard(request)
-    return HttpResponse("User type not recognized.")
+    ctx = user_context(request)
+    return render(request, 'dashboard.html', ctx)
 
 
 @login_required
