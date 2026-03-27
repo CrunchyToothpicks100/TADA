@@ -1,15 +1,11 @@
-from django.shortcuts import render, get_object_or_404
-
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
-from django.shortcuts import redirect
-
-from base.models import Candidate
 from django.contrib.auth.models import User
-
 from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 
+from base.models import Candidate, Company, Position
 from base.user_context import user_context
+
 
 def logout_view(request):
     from django.contrib.auth import logout
@@ -22,6 +18,8 @@ def submit_application(request):
 
 
 def application(request, position_id, page):
+    position = get_object_or_404(Position, id=position_id, is_active=True)
+
     if request.method == 'POST':
         # Process the submitted application data
         first_name = request.POST.get('first_name', '').strip()
@@ -41,9 +39,10 @@ def application(request, position_id, page):
             linkedin_url=linkedin_url,
             bio=bio,
         )
-        return redirect(f'/submit_application/')
+        return redirect('/submit_application/')
 
     context = {
+        'position': position,
         'position_id': position_id,
         'page': page,
     }
@@ -55,8 +54,11 @@ def about(request):
     return render(request, "about.html")
 
 
-def details(request, id):  #id comes from the URL
-    mycandidate = Candidate.objects.get(id=id)
+@login_required
+def details(request, id):
+    if not request.user.is_superuser and not request.user.company_staff.exists():
+        return HttpResponse("Unauthorized: Staff access required.")
+    mycandidate = get_object_or_404(Candidate, id=id)
     context = {
         'mycandidate': mycandidate,
     }
@@ -64,20 +66,18 @@ def details(request, id):  #id comes from the URL
 
 
 def home(request):
-    from base.models import Company, Position
     if request.user.is_authenticated:
-        return redirect(f'/dashboard/')
+        return redirect('/dashboard/')
     else:
-        return redirect(f'/careers/')
+        return redirect('/careers/')
 
 
 def careers(request):
-    from base.models import Company, Position
     context = {
         'companies': Company.objects.filter(is_active=True),
         'positions': Position.objects.filter(is_active=True),
     }
-    return render(request, "careers.html", context) 
+    return render(request, "careers.html", context)
 
 
 def login(request):
@@ -85,21 +85,21 @@ def login(request):
 
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '').strip()
+        password = request.POST.get('password', '')
 
-        # Find user by email
-        from django.contrib.auth.models import User
         try:
             user_obj = User.objects.get(email=email)
         except User.DoesNotExist:
-            return HttpResponse("Invalid email or password. Does not exist.")
+            return HttpResponse("Invalid email or password.")
+        except User.MultipleObjectsReturned:
+            return HttpResponse("Invalid email or password.")
 
         user = authenticate(request, username=user_obj.username, password=password)
         if user is not None:
             auth_login(request, user)
-            return redirect(f'/dashboard/')
+            return redirect('/dashboard/')
         else:
-            return HttpResponse("Invalid email or password. (Invalid credentials).")
+            return HttpResponse("Invalid email or password.")
 
     return render(request, 'auth/login.html')
 
@@ -116,8 +116,6 @@ def dashboard(request):
 
 @login_required
 def add_position(request):
-    from base.models import Position
-
     # Resolve which company to add the position to
     if not request.user.is_superuser:
         membership = request.user.company_staff.filter(is_admin=True).first()
@@ -125,7 +123,6 @@ def add_position(request):
             return HttpResponse("Unauthorized: You are not an admin for any company.")
         company = membership.company
     else:
-        from base.models import Company
         company_id = request.GET.get('company_id') or request.POST.get('company_id')
         company = get_object_or_404(Company, id=company_id) if company_id else None
         if not company:
@@ -134,6 +131,7 @@ def add_position(request):
     if request.method == 'POST':
         position = Position.objects.create(
             company=company,
+            created_by=request.user,
             title=request.POST.get('title', '').strip(),
             description=request.POST.get('description', '').strip(),
             employment_type=request.POST.get('employment_type', 'full_time'),
@@ -150,7 +148,6 @@ def add_position(request):
 
 @login_required
 def edit_position(request, id):
-    from base.models import Position
     position = get_object_or_404(Position, id=id)
     user = request.user
 
@@ -174,13 +171,13 @@ def edit_position(request, id):
     }
     return render(request, 'staff/edit_position.html', context)
 
+
 @login_required
 def delete_position(request, id):
-    from base.models import Position
     position = get_object_or_404(Position, id=id)
     user = request.user
 
-    # Only company admins for this position's company, or superusers, may delete
+    # Only superusers may delete positions
     if not user.is_superuser:
         return HttpResponse("Unauthorized: Only superusers can delete positions.")
 
@@ -188,3 +185,5 @@ def delete_position(request, id):
         company_id = position.company_id
         position.delete()
         return redirect(f'/dashboard/?company_id={company_id}')
+
+    return redirect(f'/dashboard/?company_id={position.company_id}')

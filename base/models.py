@@ -251,6 +251,10 @@ class Submission(models.Model):
         default=STATUS_NEW,
     )
 
+    # True when the submission was completed using an email that matched an existing User,
+    # but that User has not yet logged in to claim it. Flipped to False on login.
+    needs_claim = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True, blank=True)
     edited_at = models.DateTimeField(null=True, blank=True)
@@ -259,6 +263,7 @@ class Submission(models.Model):
         indexes = [
             models.Index(fields=["candidate", "status"]),
             models.Index(fields=["position", "status"]),
+            models.Index(fields=["needs_claim"]),
         ]
         constraints = [
             models.CheckConstraint(
