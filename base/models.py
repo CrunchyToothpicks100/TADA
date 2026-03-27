@@ -66,7 +66,10 @@ class Company(models.Model):
     description = models.TextField(blank=True)
     location = models.CharField(max_length=200, blank=True)
     created_by = models.ForeignKey(
-        "auth.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_companies"
+        "auth.User",
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="created_companies"
     )
 
     is_active = models.BooleanField(default=True)
@@ -82,8 +85,13 @@ class CompanyStaff(models.Model):
     Bridge table linking a user to one or more companies as staff/admin.
     is_admin is per-company: a user can be admin at one company and staff at another.
     """
-    user = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="company_staff")
-    company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="staff")
+    user = models.ForeignKey(
+        "auth.User",
+        on_delete=models.CASCADE,
+        related_name="company_staff"
+    )
+    company = models.ForeignKey(
+        Company, on_delete=models.PROTECT, related_name="staff")
 
     # admin vs staff, scoped per company
     is_admin = models.BooleanField(default=False)
@@ -92,7 +100,10 @@ class CompanyStaff(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["user", "company"], name="uniq_companystaff_user_company"),
+            models.UniqueConstraint(
+                fields=["user", "company"],
+                name="uniq_companystaff_user_company"
+            ),
         ]
 
     def __str__(self):
@@ -159,7 +170,10 @@ class CandidateInterest(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["candidate", "label"], name="uniq_candidate_interest_label"),
+            models.UniqueConstraint(
+                fields=["candidate", "label"],
+                name="uniq_candidate_interest_label"
+            ),
             models.CheckConstraint(
                 condition=models.Q(strength_1_to_10__gte=1) & models.Q(strength_1_to_10__lte=10),
                 name="check_interest_strength_1_to_10",
@@ -177,9 +191,15 @@ class Note(models.Model):
     UPDATE (body + edited_at): author only.
     DELETE: author, company admin, or superuser; cascades when Candidate is deleted.
     """
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="notes")
+    candidate = models.ForeignKey(
+        Candidate,
+        on_delete=models.CASCADE,
+        related_name="notes"
+    )
     author = models.ForeignKey(
-        "auth.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="authored_notes"
+        "auth.User", 
+        on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name="authored_notes"
     )
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -372,12 +392,23 @@ class Answer(models.Model):
     Stores different types in different columns.
     For multi-choice, we store selections in AnswerChoice.
     """
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="answers")
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
+    submission = models.ForeignKey(
+        Submission,
+        on_delete=models.CASCADE,
+        related_name="answers"
+    )
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name="answers"
+    )
 
-    int_value = models.PositiveSmallIntegerField(null=True, blank=True)  # Question.TYPE_RATING
-    bool_value = models.BooleanField(null=True, blank=True)              # Question.TYPE_YESNO
-    text_value = models.TextField(blank=True)                            # Question.TYPE_TEXT
+    # Question.TYPE_RATING
+    int_value = models.PositiveSmallIntegerField(null=True, blank=True)  
+    # Question.TYPE_YESNO
+    bool_value = models.BooleanField(null=True, blank=True)
+    # Question.TYPE_TEXT
+    text_value = models.TextField(blank=True)
 
     # Question.TYPE_SINGLE
     choice = models.ForeignKey(
@@ -393,7 +424,10 @@ class Answer(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["submission", "question"], name="uniq_submission_question_answer"),
+            models.UniqueConstraint(
+                fields=["submission", "question"], 
+                name="uniq_submission_question_answer"
+            ),
             models.CheckConstraint(
                 condition=models.Q(int_value__isnull=True) | models.Q(int_value__gte=0),
                 name="check_answer_int_value",
