@@ -33,12 +33,15 @@ class Position(models.Model):
         max_length=20,
         choices=EMPLOYMENT_TYPE_CHOICES,
         default=EMPLOYMENT_FULL_TIME,
-        db_index=True,
     )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        indexes = [
+            models.Index(fields=["company", "is_active"]),
+            models.Index(fields=["employment_type"]),
+        ]
         constraints = [
             models.CheckConstraint(
                 condition=models.Q(employment_type__in=[
@@ -116,7 +119,7 @@ class Candidate(models.Model):
         related_name="candidate_profiles",
     )
 
-    email = models.EmailField(db_index=True)
+    email = models.EmailField()
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
     phone = models.CharField(max_length=40)    
@@ -226,7 +229,6 @@ class Submission(models.Model):
             (STATUS_FINISHED, "Finished"),
         ],
         default=STATUS_NEW,
-        db_index=True,
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -234,6 +236,10 @@ class Submission(models.Model):
     edited_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
+        indexes = [
+            models.Index(fields=["candidate", "status"]),
+            models.Index(fields=["position", "status"]),
+        ]
         constraints = [
             models.CheckConstraint(
                 condition=models.Q(status__in=["new", "discarded", "finished"]),
@@ -293,7 +299,6 @@ class Question(models.Model):
             (TYPE_MULTI, "Multi choice"),
         ],
         default=TYPE_RATING,
-        db_index=True,
     )
 
     prompt = models.TextField()
@@ -311,6 +316,11 @@ class Question(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        indexes = [
+            models.Index(fields=["question_type"]),
+            models.Index(fields=["company", "is_active"]),
+            models.Index(fields=["position", "is_active"]),
+        ]
         constraints = [
             models.CheckConstraint(
                 condition=models.Q(question_type__in=[
