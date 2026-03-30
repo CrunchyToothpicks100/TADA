@@ -1,0 +1,83 @@
+{% extends 'master.html' %}
+
+{% block title %}TADA - Submission Detail{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-header">
+        <div class="row-1">
+            <span>{{ submission.candidate }} — {{ submission.position }}</span>
+            <span>Status: {{ submission.get_status_display }}</span>
+        </div>
+    </div>
+    <div class="list-group">
+        <div class="list-group-item">
+            <strong>Candidate:</strong> {{ submission.candidate.first_name }} {{ submission.candidate.last_name }}
+        </div>
+        <div class="list-group-item">
+            <strong>Email:</strong> {{ submission.candidate.email }}
+        </div>
+        <div class="list-group-item">
+            <strong>Position:</strong> {{ submission.position }}
+        </div>
+        <div class="list-group-item">
+            <strong>Submitted:</strong> {{ submission.created_at }}
+        </div>
+        {% if submission.finished_at %}
+        <div class="list-group-item">
+            <strong>Finished:</strong> {{ submission.finished_at }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="row-1">Answers</span>
+    </div>
+    <div class="list-group">
+        {% for answer in answers %}
+        <div class="list-group-item">
+            <strong>{{ answer.question.prompt }}</strong>
+            <p>
+                {% if answer.question.question_type == 'rating' %}
+                    {{ answer.int_value }} / 10
+                {% elif answer.question.question_type == 'yesno' %}
+                    {% if answer.bool_value %}Yes{% else %}No{% endif %}
+                {% elif answer.question.question_type == 'text' %}
+                    {{ answer.text_value }}
+                {% elif answer.question.question_type == 'single' %}
+                    {{ answer.choice.label }}
+                {% elif answer.question.question_type == 'multi' %}
+                    {% for ac in answer.multi_choices.all %}{{ ac.choice.label }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                {% endif %}
+            </p>
+        </div>
+        {% empty %}
+        <div class="list-group-item">No answers recorded.</div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if is_staff %}
+<div class="card">
+    <div class="card-header">
+        <span class="row-1">Set Status</span>
+    </div>
+    <div class="list-group">
+        <div class="list-group-item">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="status" value="new">New</button>
+                <button type="submit" name="status" value="finished">Finished</button>
+                <button type="submit" name="status" value="discarded">Discarded</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<p><a href="{% url 'dashboard' %}">Back to Dashboard</a></p>
+
+{% endblock %}

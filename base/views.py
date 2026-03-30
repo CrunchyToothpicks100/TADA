@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
-from base.models import Candidate, Company, Position
+from base.models import Candidate, Company, Position, Submission
 from base.user_context import user_context
 
 
@@ -170,6 +170,47 @@ def edit_position(request, id):
         'employment_type_choices': Position.EMPLOYMENT_TYPE_CHOICES,
     }
     return render(request, 'staff/edit_position.html', context)
+
+
+@login_required
+def submission_detail(request, id):
+    submission = get_object_or_404(
+        Submission.objects.select_related('candidate', 'position__company')
+                          .prefetch_related('answers__question', 'answers__choice', 'answers__multi_choices__choice'),
+        id=id,
+    )
+    user = request.user
+    is_candidate_owner = (
+        hasattr(user, 'candidate_profiles') and
+        user.candidate_profiles.filter(id=submission.candidate_id).exists()
+    )
+    is_staff_for_company = (
+        user.is_superuser or
+        (submission.position and user.company_staff.filter(company=submission.position.company).exists())
+    )
+    if not is_candidate_owner and not is_staff_for_company:
+        return HttpResponse("Unauthorized: You do not have access to this submission.")
+
+    is_admin = (
+        user.is_superuser or
+        (submission.position and user.company_staff.filter(company=submission.position.company, is_admin=True).exists())
+    )
+
+    if request.method == 'POST' and is_staff_for_company:
+        new_status = request.POST.get('status')
+        if new_status in (Submission.STATUS_NEW, Submission.STATUS_FINISHED, Submission.STATUS_DISCARDED):
+            submission.status = new_status
+            submission.save()
+            return redirect('submission_detail', id=id)
+
+    context = {
+        'submission': submission,
+        'answers': submission.answers.all(),
+        'is_admin': is_admin,
+        'is_staff': is_staff_for_company,
+        'is_candidate_owner': is_candidate_owner,
+    }
+    return render(request, 'staff/submission_detail.html', context)
 
 
 @login_required

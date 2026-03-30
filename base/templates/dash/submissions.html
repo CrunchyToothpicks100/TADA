@@ -8,8 +8,7 @@
         <div class="list-group-item">
             <h3>{{ submission.candidate }} — {{ submission.position }}</h3>
             <p>Status: {{ submission.status }}</p>
-            {# TODO: submission_detail not yet implemented — see TODO.md #}
-            <div><a href="#">View</a></div>
+            <div><a href="{% url 'submission_detail' submission.id %}">View</a></div>
         </div>
         {% empty %}
         <div class="list-group-item">No submissions available.</div>
