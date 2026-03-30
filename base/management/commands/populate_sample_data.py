@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -116,10 +118,20 @@ class Command(BaseCommand):
         # ------------------------------------------------------------------ #
         interest_data = [
             {"candidate": candidates[0], "label": "Python",           "strength": 9},
+            {"candidate": candidates[0], "label": "Backend Systems",  "strength": 8},
+            {"candidate": candidates[0], "label": "Open Source",      "strength": 6},
             {"candidate": candidates[1], "label": "Marketing",        "strength": 8},
+            {"candidate": candidates[1], "label": "Product Strategy", "strength": 9},
+            {"candidate": candidates[1], "label": "UX Research",      "strength": 7},
             {"candidate": candidates[2], "label": "Machine Learning", "strength": 10},
+            {"candidate": candidates[2], "label": "Data Engineering", "strength": 8},
+            {"candidate": candidates[2], "label": "Python",           "strength": 9},
             {"candidate": candidates[3], "label": "DevOps",           "strength": 7},
+            {"candidate": candidates[3], "label": "Cloud Infra",      "strength": 8},
+            {"candidate": candidates[3], "label": "Test Automation",  "strength": 9},
             {"candidate": candidates[4], "label": "Cybersecurity",    "strength": 9},
+            {"candidate": candidates[4], "label": "Penetration Testing", "strength": 10},
+            {"candidate": candidates[4], "label": "Threat Modelling", "strength": 8},
         ]
         for d in interest_data:
             CandidateInterest.objects.get_or_create(
@@ -207,11 +219,11 @@ class Command(BaseCommand):
         # ------------------------------------------------------------------ #
         submission_data = [
             # [0] John -> Backend Engineer (Acme)   questions: q0, q1, q2
-            {"candidate": candidates[0], "position": positions[0], "status": Submission.STATUS_FINISHED, "finished_at": timezone.now()},
+            {"candidate": candidates[0], "position": positions[0], "status": Submission.STATUS_FINISHED, "finished_at": timezone.make_aware(datetime(2026, 3, 10, 14, 30))},
             # [1] Jane -> Product Manager (Acme)    questions: q0, q1, q3
-            {"candidate": candidates[1], "position": positions[1], "status": Submission.STATUS_FINISHED, "finished_at": timezone.now()},
+            {"candidate": candidates[1], "position": positions[1], "status": Submission.STATUS_FINISHED, "finished_at": timezone.make_aware(datetime(2026, 3, 18,  9, 15))},
             # [2] Carlos -> Data Scientist (Globex) questions: q0, q4, q5
-            {"candidate": candidates[2], "position": positions[2], "status": Submission.STATUS_FINISHED, "finished_at": timezone.now()},
+            {"candidate": candidates[2], "position": positions[2], "status": Submission.STATUS_FINISHED, "finished_at": timezone.make_aware(datetime(2026, 3, 25, 16, 45))},
             # [3] Mei -> QA Engineer (Initech)      questions: q0, q6, q7
             {"candidate": candidates[3], "position": positions[3], "status": Submission.STATUS_DISCARDED, "finished_at": None},
             # [4] Omar -> Security Researcher (Umbrella) questions: q0, q8, q9
@@ -224,6 +236,11 @@ class Command(BaseCommand):
                 defaults={"status": d["status"], "finished_at": d["finished_at"]},
             )
             submissions.append(s)
+
+        # Force created_at earlier than finished_at (bypasses auto_now_add)
+        Submission.objects.filter(pk=submissions[0].pk).update(created_at=timezone.make_aware(datetime(2026, 3,  5,  9,  0)))
+        Submission.objects.filter(pk=submissions[1].pk).update(created_at=timezone.make_aware(datetime(2026, 3, 10, 11,  0)))
+        Submission.objects.filter(pk=submissions[2].pk).update(created_at=timezone.make_aware(datetime(2026, 3, 20,  8, 30)))
         self.stdout.write("  submissions ok")
 
         # ------------------------------------------------------------------ #

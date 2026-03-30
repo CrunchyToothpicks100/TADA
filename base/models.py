@@ -464,11 +464,22 @@ class AnswerChoice(models.Model):
 
 class ApplicationToken(models.Model):
     """
-    One-time magic link token for a candidate to resume or complete their application.
-    Created when the candidate enters their email at the start of the application.
-    Can only be used once. Expires after 3 days.
-    On expiry: token is deleted; if Candidate.user is NULL, the Candidate (and all
-    cascades: Submission, Answer, etc.) is also deleted.
+    One-time email verification token for a Candidate.
+
+    Created on page-1 submission ONLY when the email does not match an existing auth.User.
+    The token is emailed as a button-link; clicking it redirects to the set-password page.
+    On password submission: auth.User is created, Candidate.user is set, all
+    ApplicationTokens for that Candidate are deleted, and the user is logged in.
+
+    Rules:
+      - Can only be used once.
+      - Expires after 3 days.
+      - On expiry: token is deleted; if Candidate.user is still NULL, the Candidate
+        and all cascades (Submission, Answer, AnswerChoice, etc.) are also deleted.
+
+    Browser persistence: a cookie named `application_token` (max_age 3 days, httponly,
+    samesite=Lax) is set on creation so the candidate can resume the form across sessions.
+    The cookie is deleted when the token is deleted.
     """
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="application_tokens")
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
