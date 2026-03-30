@@ -191,3 +191,6 @@ __marimo__/
 
 # Text files (use .md files instead)
 *.txt
+
+# WhiteNoise staticfiles
+staticfiles/
