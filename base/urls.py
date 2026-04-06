@@ -14,7 +14,6 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/positions/add/', views.add_position, name='add_position'),
     path('dashboard/positions/<int:id>/edit/', views.edit_position, name='edit_position'),
-    path('dashboard/positions/<int:id>/delete/', views.delete_position, name='delete_position'),
     path('dashboard/submissions/<int:id>/', views.submission_detail, name='submission_detail'),
     # Make sure to test all enumeration attacks and edge cases, so I don't completely embarass myself
 ]

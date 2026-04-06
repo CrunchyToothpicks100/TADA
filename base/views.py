@@ -211,20 +211,3 @@ def submission_detail(request, id):
         'is_candidate_owner': is_candidate_owner,
     }
     return render(request, 'staff/submission_detail.html', context)
-
-
-@login_required
-def delete_position(request, id):
-    position = get_object_or_404(Position, id=id)
-    user = request.user
-
-    # Only superusers may delete positions
-    if not user.is_superuser:
-        return HttpResponse("Unauthorized: Only superusers can delete positions.")
-
-    if request.method == 'POST':
-        company_id = position.company_id
-        position.delete()
-        return redirect(f'/dashboard/?company_id={company_id}')
-
-    return redirect(f'/dashboard/?company_id={position.company_id}')

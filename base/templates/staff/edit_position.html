@@ -52,14 +52,6 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Save Changes</button>
-        {% if user.is_superuser %}
-        <button 
-            type="submit" 
-            class="btn btn-danger" 
-            formaction="{% url 'delete_position' position.id %}" 
-            onclick="return confirm('Are you sure?\n\nAll submissions tied to this position will be orphaned!')">
-            Delete Position
-        </button>
         {% endif %}
     </form>
 {% endblock %}
