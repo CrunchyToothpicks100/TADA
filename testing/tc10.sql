@@ -1,3 +1,5 @@
+-- tc10
+-- Validate Multi-Choice Uniqueness
 -- Get an existing multi-answer (Globex Data Scientist case)
 WITH target_answer AS (
     SELECT a.id

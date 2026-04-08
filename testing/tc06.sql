@@ -1,3 +1,5 @@
+-- tc06
+-- Validate PROTECT on Position
 DELETE FROM base_position
 WHERE id = (
     SELECT p.id

@@ -1,3 +1,5 @@
+-- tc00
+-- Test Valid Data
 -- Check each table against populate_sample_data.py
 SELECT * FROM auth_user;
 SELECT * FROM base_answer;

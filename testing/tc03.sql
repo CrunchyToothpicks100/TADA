@@ -1,3 +1,5 @@
+-- tc03
+-- Validate Unique User-Company Relationship
 -- Duplicate insert (this record should already exist from sample data, should fail)
 INSERT INTO base_companystaff (user_id, company_id, is_admin, created_at)
 VALUES (

@@ -1,3 +1,5 @@
+-- tc05
+-- Validate Cascade Delete Behavior
 -- Create test candidate
 INSERT INTO base_candidate (email, first_name, last_name, phone)
 VALUES ('cascade@test.com', 'Cascade', 'Test', '555-0000');
