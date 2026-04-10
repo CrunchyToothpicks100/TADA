@@ -2,6 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from httpx import request
+
+#import for forms.py
+from base.forms import CandidateForm
 
 from base.models import Candidate, Company, Position, Submission
 from base.user_context import user_context
@@ -16,7 +20,27 @@ def logout_view(request):
 def submit_application(request):
     return render(request, 'submit_application.html')
 
+# New application view for handling applications with the new forms.py ...
+def application(request, position_id, page):
+    position = get_object_or_404(Position, id=position_id, is_active=True)
 
+    form = CandidateForm(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('/submit_application/')
+
+    context = {
+        'position': position,
+        'position_id': position_id,
+        'page': page,
+        'form': form,
+    }
+
+    return render(request, 'application.html', context)
+
+'''
 def application(request, position_id, page):
     position = get_object_or_404(Position, id=position_id, is_active=True)
 
@@ -48,11 +72,10 @@ def application(request, position_id, page):
     }
 
     return render(request, 'application.html', context)
-
+'''
 
 def about(request):
     return render(request, "about.html")
-
 
 @login_required
 def details(request, id):

@@ -15,32 +15,56 @@
         {% csrf_token %}
         <div class="form-group">
             <label for="first_name">First Name: </label>
-            <input type="text" id="first_name" name="first_name" required>
+            <input type="text" id="first_name" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
+            <!-- Added for forms.py implementation, minor error validation -->
+            {% if form.first_name.errors %}
+                <span class ="form-error">{{ form.first_name.errors|join:", "}}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label for="last_name">Last Name: </label>
-            <input type="text" id="last_name" name="last_name" required>
+            <input type="text" id="last_name" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
+            <!-- Added for forms.py implementation, minor error validation -->
+            {% if form.last_name.errors %}
+                <span class ="form-error">{{ form.last_name.errors|join:", "}}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label for="email">Email: </label>
-            <input type="email" id="email" name="email" required>
+            <input type="email" id="email" name="email" value="{{ form.email.value|default:'' }}" required>
+            <!-- Added for forms.py implementation, minor error validation -->
+            {% if form.email.errors %}
+                <span class ="form-error">{{ form.email.errors|join:", "}}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label for="phone">Phone: </label>
-            <input type="tel" id="phone" name="phone">
+            <input type="tel" id="phone" name="phone" value="{{ form.phone.value|default:'' }}">
+            <!-- Added for forms.py implementation, minor error validation -->
+            {% if form.phone.errors %}
+                <span class ="form-error">{{ form.phone.errors|join:", "}}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label for="linkedin_url">LinkedIn URL: </label>
-            <input type="url" id="linkedin_url" name="linkedin_url">
+            <input type="url" id="linkedin_url" name="linkedin_url" value="{{ form.linkedin_url.value|default:'' }}">
+            <!-- Added for forms.py implementation, minor error validation -->
+            {% if form.linkedin_url.errors %}
+                <span class ="form-error">{{ form.linkedin_url.errors|join:", "}}</span>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label for="bio">Short Bio: </label>
-            <textarea id="bio" name="bio" rows="4"></textarea>
+            <textarea id="bio" name="bio" rows="4">{{ form.bio.value|default:'' }}</textarea>
+            <!-- Added for forms.py implementation, minor error validation -->
+            {% if form.bio.errors %}
+                <span class ="form-error">{{ form.bio.errors|join:", "}}</span>
+            {% endif %}
         </div>
 
         <button type="submit">Submit Application</button>
