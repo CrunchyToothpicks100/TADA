@@ -102,6 +102,42 @@
 </div>
 {% endif %}
 
-<p><a href="{% url 'dashboard' %}">Back to Dashboard</a></p>
+{% if is_admin_reviewer %}
+<div class="card">
+    <div class="card-header">
+        <span class="row-1">Admin Notes</span>
+    </div>
+    <div class="list-group">
+        {% for note in notes %}
+        <div class="list-group-item">
+            <strong>{{ note.author|default:"Unknown admin" }}</strong>
+            <div>{{ note.created_at }}</div>
+            <p>{{ note.body }}</p>
+        </div>
+        {% empty %}
+        <div class="list-group-item">No admin notes yet.</div>
+        {% endfor %}
+    </div>
+    <form method="post" class="page-form application-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ note_form.body.id_for_label }}">Add Note</label>
+            {{ note_form.body }}
+            {% if note_form.body.errors %}
+            <span class="form-error">{{ note_form.body.errors|join:", " }}</span>
+            {% endif %}
+        </div>
+        <button type="submit" class="medium-btn">Save Note</button>
+    </form>
+</div>
+{% endif %}
+
+<p>
+    {% if is_staff %}
+    <a href="{% url 'company_dashboard' %}?company_id={{ submission.position.company_id }}">Back to Company Dashboard</a>
+    {% else %}
+    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+    {% endif %}
+</p>
 
 {% endblock %}

@@ -13,6 +13,7 @@ urlpatterns = [
     path('application/<int:position_id>/<int:page>/', views.application, name='application'),
     path('submit_application/', views.submit_application, name='submit_application'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('company_dashboard/', views.company_dashboard, name='company_dashboard'),
     path('dashboard/questions/', views.question_manager, name='question_manager'),
     path('dashboard/questions/<int:question_id>/edit/', views.edit_question, name='edit_question'),
     path('dashboard/questions/<int:question_id>/archive/', views.archive_question, name='archive_question'),

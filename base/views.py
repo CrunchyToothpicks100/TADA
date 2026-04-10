@@ -3,12 +3,16 @@ import random
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from base.forms import CandidateForm, ContinueApplicationForm, QuestionBuilderForm, QuestionForm
-from base.models import Answer, AnswerChoice, Candidate, Company, Position, Question, QuestionChoice, Submission
+from base.forms import CandidateForm, ContinueApplicationForm, QuestionBuilderForm, QuestionForm, SubmissionNoteForm
+from base.models import (
+    Answer, AnswerChoice, Candidate, CandidateInterest, Company, CompanyInterest,
+    Interest, Position, Question, QuestionChoice, Submission, SubmissionNote,
+)
 from base.user_context import user_context
 
 
@@ -36,10 +40,15 @@ def _upsert_candidate(form, request):
     return candidate
 
 
-def _ensure_candidate_user(candidate):
+def _ensure_candidate_user(candidate, request):
     code = candidate.continue_code or _generate_continue_code()
+    created_login = False
 
-    user = candidate.user
+    if candidate.user is None and request.user.is_authenticated:
+        user = request.user
+    else:
+        user = candidate.user
+
     if user is None:
         user = User(
             username=f"candidate-{candidate.external_id.hex[:12]}",
@@ -47,18 +56,14 @@ def _ensure_candidate_user(candidate):
             first_name=candidate.first_name,
             last_name=candidate.last_name,
         )
-    else:
-        user.email = candidate.email
-        user.first_name = candidate.first_name
-        user.last_name = candidate.last_name
-
-    user.set_password(code)
-    user.save()
+        user.set_password(code)
+        user.save()
+        created_login = True
 
     candidate.user = user
     candidate.continue_code = code
     candidate.save(update_fields=["user", "continue_code", "email", "first_name", "last_name", "phone", "linkedin_url", "bio"])
-    return user, code
+    return user, code, created_login
 
 
 def _submission_for(candidate, position):
@@ -72,6 +77,14 @@ def _submission_for(candidate, position):
     if submission is None:
         submission = Submission.objects.create(candidate=candidate, position=position)
     return submission
+
+
+def _interest_queryset_for_position(position):
+    company_interest_ids = CompanyInterest.objects.filter(company=position.company).values_list("interest_id", flat=True)
+    queryset = Interest.objects.filter(id__in=company_interest_ids).order_by("label")
+    if queryset.exists():
+        return queryset
+    return Interest.objects.order_by("label")
 
 
 def _questions_for(position, page):
@@ -103,6 +116,10 @@ def _save_submission_payload(submission):
             "phone": submission.candidate.phone,
             "linkedin_url": submission.candidate.linkedin_url,
             "bio": submission.candidate.bio,
+            "interests": [
+                candidate_interest.interest.label if candidate_interest.interest_id else candidate_interest.label
+                for candidate_interest in submission.candidate.interests.select_related("interest").order_by("-strength_1_to_10", "label")
+            ],
         },
         "position_title": submission.position.title if submission.position_id else "",
     }
@@ -147,6 +164,25 @@ def _selected_company_for_user(request):
     if selected_company is None and companies:
         selected_company = companies[0]
     return selected_company
+
+
+def _save_candidate_interests(candidate, interests):
+    selected_ids = {interest.id for interest in interests}
+    candidate.interests.exclude(interest__isnull=True).exclude(interest_id__in=selected_ids).delete()
+
+    for interest in interests:
+        CandidateInterest.objects.update_or_create(
+            candidate=candidate,
+            interest=interest,
+            defaults={
+                "label": interest.label,
+                "strength_1_to_10": 5,
+            },
+        )
+
+
+def _is_admin_reviewer(user):
+    return user.is_superuser or user.company_staff.filter(is_admin=True).exists()
 
 
 def _can_manage_company_questions(user, company):
@@ -245,13 +281,11 @@ def application_continue(request):
 def application(request, position_id, page):
     position = get_object_or_404(Position, id=position_id, is_active=True)
     page = int(page)
-
-    if request.user.is_authenticated and (request.user.is_superuser or request.user.company_staff.exists()):
-        return redirect(f"/dashboard/?company_id={position.company_id}")
+    interest_queryset = _interest_queryset_for_position(position)
 
     if page == 1:
         candidate = _current_candidate(request)
-        form = CandidateForm(request.POST or None, instance=candidate)
+        form = CandidateForm(request.POST or None, instance=candidate, interest_queryset=interest_queryset)
         if request.method == "POST" and form.is_valid():
             existing_candidate = _candidate_from_email(form.cleaned_data["email"])
             if existing_candidate and (candidate is None or existing_candidate.id != candidate.id):
@@ -272,8 +306,10 @@ def application(request, position_id, page):
                 )
 
             candidate = _upsert_candidate(form, request)
-            user, continue_code = _ensure_candidate_user(candidate)
-            auth_login(request, user)
+            _save_candidate_interests(candidate, form.cleaned_data["interests"])
+            user, continue_code, created_login = _ensure_candidate_user(candidate, request)
+            if created_login or not request.user.is_authenticated or request.user.pk != user.pk:
+                auth_login(request, user)
 
             submission = _submission_for(candidate, position)
             _save_submission_payload(submission)
@@ -292,6 +328,7 @@ def application(request, position_id, page):
                 "page": page,
                 "form": form,
                 "continue_code": candidate.continue_code if candidate else "",
+                "available_interests": interest_queryset,
             },
         )
 
@@ -398,8 +435,75 @@ def forgotpw(request):
 
 @login_required
 def dashboard(request):
+    if not request.user.company_staff.exists() and not request.user.is_superuser:
+        ctx = user_context(request)
+        return render(request, 'dashboard.html', ctx)
+
+    companies = list(Company.objects.filter(is_active=True).order_by("title"))
+    company_cards = []
+    for company in companies:
+        application_count = Submission.objects.filter(position__company=company).count()
+        shared_interest_count = CompanyInterest.objects.filter(company=company).count()
+        company_cards.append(
+            {
+                "company": company,
+                "application_count": application_count,
+                "interest_count": shared_interest_count,
+            }
+        )
+
+    top_positions = list(
+        Position.objects.filter(is_active=True)
+        .annotate(application_count=Count("submissions"))
+        .select_related("company")
+        .order_by("-application_count", "title")[:8]
+    )
+    top_interests = list(
+        CandidateInterest.objects.exclude(interest__isnull=True)
+        .values("interest__label")
+        .annotate(candidate_count=Count("candidate", distinct=True))
+        .order_by("-candidate_count", "interest__label")[:8]
+    )
+
+    overlap_points = []
+    for company in companies:
+        company_interest_ids = set(
+            CompanyInterest.objects.filter(company=company).values_list("interest_id", flat=True)
+        )
+        overlap_total = 0
+        for other_company in companies:
+            if other_company.id == company.id:
+                continue
+            other_interest_ids = set(
+                CompanyInterest.objects.filter(company=other_company).values_list("interest_id", flat=True)
+            )
+            overlap_total += len(company_interest_ids & other_interest_ids)
+        overlap_points.append(
+            {
+                "company": company.title,
+                "interest_count": len(company_interest_ids),
+                "overlap_count": overlap_total,
+                "applications": Submission.objects.filter(position__company=company).count(),
+            }
+        )
+
+    context = {
+        "company_cards": company_cards,
+        "top_positions": top_positions,
+        "top_interests": top_interests,
+        "overlap_points": overlap_points,
+        "is_candidate": Candidate.objects.filter(user=request.user).exists(),
+        "my_applications": Submission.objects.filter(candidate=request.user.candidate_profiles.first()).order_by("-created_at")
+        if request.user.candidate_profiles.exists()
+        else [],
+    }
+    return render(request, 'dashboard.html', context)
+
+
+@login_required
+def company_dashboard(request):
     ctx = user_context(request)
-    return render(request, 'dashboard.html', ctx)
+    return render(request, 'company_dashboard.html', ctx)
 
 
 @login_required
@@ -424,7 +528,7 @@ def add_position(request):
             employment_type=request.POST.get('employment_type', 'full_time'),
             is_active=request.POST.get('is_active') == 'on',
         )
-        return redirect(f'/dashboard/?company_id={position.company_id}')
+        return redirect(f'/company_dashboard/?company_id={position.company_id}')
 
     context = {
         'company': company,
@@ -449,7 +553,7 @@ def edit_position(request, id):
         position.employment_type = request.POST.get('employment_type', position.employment_type)
         position.is_active = request.POST.get('is_active') == 'on'
         position.save()
-        return redirect(f'/dashboard/?company_id={position.company_id}')
+        return redirect(f'/company_dashboard/?company_id={position.company_id}')
 
     context = {
         'position': position,
@@ -579,10 +683,11 @@ def archive_question(request, question_id):
 def submission_detail(request, id):
     submission = get_object_or_404(
         Submission.objects.select_related('candidate', 'position__company')
-                          .prefetch_related('answers__question', 'answers__choice', 'answers__multi_choices__choice'),
+                          .prefetch_related('answers__question', 'answers__choice', 'answers__multi_choices__choice', 'notes__author'),
         id=id,
     )
     user = request.user
+    is_admin_reviewer = _is_admin_reviewer(user)
     is_candidate_owner = (
         hasattr(user, 'candidate_profiles') and
         user.candidate_profiles.filter(id=submission.candidate_id).exists()
@@ -591,15 +696,24 @@ def submission_detail(request, id):
         user.is_superuser or
         (submission.position and user.company_staff.filter(company=submission.position.company).exists())
     )
-    if not is_candidate_owner and not is_staff_for_company:
+    if not is_candidate_owner and not is_staff_for_company and not is_admin_reviewer:
         return HttpResponse("Unauthorized: You do not have access to this submission.")
 
     is_admin = (
         user.is_superuser or
         (submission.position and user.company_staff.filter(company=submission.position.company, is_admin=True).exists())
     )
+    note_form = SubmissionNoteForm(request.POST or None)
 
-    if request.method == 'POST' and is_staff_for_company:
+    if request.method == "POST" and is_admin_reviewer and "body" in request.POST:
+        if note_form.is_valid():
+            SubmissionNote.objects.create(
+                submission=submission,
+                author=request.user,
+                body=note_form.cleaned_data["body"].strip(),
+            )
+            return redirect("submission_detail", id=id)
+    elif request.method == 'POST' and is_staff_for_company:
         new_status = request.POST.get('status')
         if new_status in (Submission.STATUS_NEW, Submission.STATUS_FINISHED, Submission.STATUS_DISCARDED):
             submission.status = new_status
@@ -611,6 +725,9 @@ def submission_detail(request, id):
         'answers': submission.answers.all(),
         'is_admin': is_admin,
         'is_staff': is_staff_for_company,
+        'is_admin_reviewer': is_admin_reviewer,
         'is_candidate_owner': is_candidate_owner,
+        'notes': submission.notes.all(),
+        'note_form': note_form,
     }
     return render(request, 'staff/submission_detail.html', context)

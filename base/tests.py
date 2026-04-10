@@ -3,7 +3,7 @@ from django.core.management import call_command
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from base.models import Candidate, Position, Question, Submission
+from base.models import Candidate, Interest, Position, Question, Submission, SubmissionNote
 
 
 class ApplicationFlowTests(TestCase):
@@ -16,6 +16,7 @@ class ApplicationFlowTests(TestCase):
         self.client = Client()
 
     def test_page_one_creates_candidate_and_logs_them_in(self):
+        python_interest = Interest.objects.get(label="Python")
         response = self.client.post(
             reverse("application", args=[self.position.id, 1]),
             data={
@@ -25,6 +26,7 @@ class ApplicationFlowTests(TestCase):
                 "phone": "555-1212",
                 "linkedin_url": "https://example.com/in/test-applicant",
                 "bio": "Built a lot of things.",
+                "interests": [python_interest.id],
             },
         )
 
@@ -32,6 +34,7 @@ class ApplicationFlowTests(TestCase):
         candidate = Candidate.objects.get(email="test@fbstudios.com")
         self.assertEqual(len(candidate.continue_code), 6)
         self.assertTrue(candidate.user_id)
+        self.assertTrue(candidate.interests.filter(interest=python_interest).exists())
         self.assertIn("_auth_user_id", self.client.session)
 
     def test_page_one_shows_errors_without_wiping_values(self):
@@ -98,6 +101,14 @@ class ApplicationFlowTests(TestCase):
         self.assertContains(response, "An application already exists for this email.")
         self.assertContains(response, "Continue an existing application")
 
+    def test_application_page_shows_company_interest_choices(self):
+        response = self.client.get(reverse("application", args=[self.position.id, 1]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Interests")
+        self.assertContains(response, "Python")
+        self.assertContains(response, "Product Strategy")
+
     def test_page_two_submission_finishes_application(self):
         self.client.post(
             reverse("application", args=[self.position.id, 1]),
@@ -138,7 +149,49 @@ class ApplicationFlowTests(TestCase):
 
         response = self.client.get(reverse("application", args=[self.position.id, 1]))
 
-        self.assertRedirects(response, f"/dashboard/?company_id={self.position.company_id}")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Application")
+
+    def test_staff_user_can_apply_without_losing_existing_login(self):
+        admin_user = User.objects.get(username="alice.admin@example.com")
+        self.client.force_login(admin_user)
+
+        response = self.client.post(
+            reverse("application", args=[self.position.id, 1]),
+            data={
+                "first_name": "Alice",
+                "last_name": "Admin",
+                "email": "alice.admin@example.com",
+                "phone": "555-1616",
+                "linkedin_url": "",
+                "bio": "Admin applying too.",
+            },
+        )
+
+        self.assertRedirects(response, reverse("application", args=[self.position.id, 2]))
+        candidate = Candidate.objects.get(user=admin_user)
+        self.assertEqual(candidate.email, "alice.admin@example.com")
+        self.assertIn("_auth_user_id", self.client.session)
+        self.assertEqual(str(self.client.session["_auth_user_id"]), str(admin_user.id))
+
+    def test_admin_reviewer_can_add_submission_note(self):
+        admin_user = User.objects.get(username="alice.admin@example.com")
+        submission = Submission.objects.filter(position=self.position).first()
+        self.client.force_login(admin_user)
+
+        response = self.client.post(
+            reverse("submission_detail", args=[submission.id]),
+            data={"body": "Worth discussing cross-company fit."},
+        )
+
+        self.assertRedirects(response, reverse("submission_detail", args=[submission.id]))
+        self.assertTrue(
+            SubmissionNote.objects.filter(
+                submission=submission,
+                author=admin_user,
+                body="Worth discussing cross-company fit.",
+            ).exists()
+        )
 
     def test_company_admin_can_create_company_wide_question(self):
         admin_user = User.objects.get(username="alice.admin@example.com")

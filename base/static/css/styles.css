@@ -139,6 +139,40 @@ button:hover {
     text-align: left;
 }
 
+.interest-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.interest-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: #fff7fb;
+    cursor: pointer;
+}
+
+.interest-pill input {
+    margin: 0;
+}
+
+.chart-wrap {
+    position: relative;
+    min-height: 280px;
+    padding: 16px;
+}
+
+.notes-form {
+    width: min(100%, 640px);
+    margin: 0 auto 20px auto;
+    padding: 0 18px 18px 18px;
+}
+
 .line-break {
     display: block;
     margin: 0 auto;
@@ -343,6 +377,15 @@ button:hover {
     .horiz-flex {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .interest-cloud {
+        gap: 8px;
+    }
+
+    .interest-pill {
+        width: 100%;
+        border-radius: 12px;
     }
 
     .card-header .row-1 {

@@ -1,16 +1,31 @@
 from django import forms
 from django.utils.text import slugify
 
-from base.models import Candidate, Question
+from base.models import Candidate, Interest, Question, SubmissionNote
 
 
 class CandidateForm(forms.ModelForm):
+    interests = forms.ModelMultipleChoiceField(
+        queryset=Interest.objects.none(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
     class Meta:
         model = Candidate
         fields = ["first_name", "last_name", "email", "phone", "linkedin_url", "bio"]
         widgets = {
             "bio": forms.Textarea(attrs={"rows": 4}),
         }
+
+    def __init__(self, *args, interest_queryset=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["interests"].queryset = interest_queryset if interest_queryset is not None else Interest.objects.none()
+
+        candidate = self.instance if getattr(self.instance, "pk", None) else None
+        if candidate is not None:
+            selected_ids = candidate.interests.exclude(interest__isnull=True).values_list("interest_id", flat=True)
+            self.fields["interests"].initial = list(selected_ids)
 
     def clean_email(self):
         return self.cleaned_data["email"].strip().lower()
@@ -183,3 +198,12 @@ class QuestionBuilderForm(forms.Form):
             used_values.add(value)
             built.append({"label": label, "value": value, "sort_order": index})
         return built
+
+
+class SubmissionNoteForm(forms.ModelForm):
+    class Meta:
+        model = SubmissionNote
+        fields = ["body"]
+        widgets = {
+            "body": forms.Textarea(attrs={"rows": 4}),
+        }

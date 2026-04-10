@@ -5,52 +5,128 @@
 {% load static %}
 
 {% block content %}
-    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <img src="{% static 'images/br3-cherry.png' %}" alt="cool line break" class="line-break">
-    <h2>{{ selected_company.title }} Dashboard
-        {% if is_super %} - Superuser
-        {% elif is_admin %} - Admin
-        {% elif is_staff %} - Staff
-        {% endif %}
-    </h2>
+    <h2>Umbrella Dashboard</h2>
 
-    {% if is_staff %}
-        {% include 'dash/company_selector.html' %}
+    {% if company_cards %}
+    <div class="grid">
+        <div class="grid-sizer"></div>
+        <div class="gutter-sizer"></div>
 
-        <div class="grid">
-            <div class="grid-sizer"></div>
-            <div class="gutter-sizer"></div>
-            {% include 'dash/job_postings.html' %}
-            {% include 'dash/submissions.html' %}
-            {% include 'dash/candidates_list.html' %}
+        <div class="card">
+            <div class="card-header">
+                <span class="row-1">Companies</span>
+            </div>
+            <div class="list-group">
+                {% for card in company_cards %}
+                <div class="list-group-item">
+                    <strong>{{ card.company.title }}</strong>
+                    <div>{{ card.application_count }} applications | {{ card.interest_count }} mapped interests</div>
+                    <div><a href="{% url 'company_dashboard' %}?company_id={{ card.company.id }}">Open company dashboard</a></div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
-    {% endif %}
 
-    {% if is_candidate %}
-        {% if is_staff %}
-        <img src="{% static 'images/br3-cherry.png' %}" alt="cool line break" class="line-break">
-        <h2>Candidate Dashboard</h2>
-        {% endif %}
-
-        <div class="grid">
-            <div class="grid-sizer"></div>
-            <div class="gutter-sizer"></div>
-            {% include 'dash/my_applications.html' %}
+        <div class="card">
+            <div class="card-header">
+                <span class="row-1">Most Popular Job Applications</span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="positionsChart"></canvas>
+            </div>
         </div>
-    {% endif %}
 
-    <img src="{% static 'images/br1-cherry.png' %}" alt="cool line break" class="line-break">
+        <div class="card">
+            <div class="card-header">
+                <span class="row-1">Top Candidate Interests</span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="interestsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="row-1">Shared Interest Overlap</span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="overlapChart"></canvas>
+            </div>
+            <div class="list-group">
+                {% for point in overlap_points %}
+                <div class="list-group-item">
+                    <strong>{{ point.company }}</strong>
+                    <div>{{ point.interest_count }} interests mapped | {{ point.overlap_count }} shared overlaps</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if is_candidate %}
+        {% include 'dash/my_applications.html' %}
+        {% endif %}
+    </div>
 
     <script>
-        document.querySelectorAll('.grid').forEach(function(grid) {
-            if (grid.querySelectorAll('.card').length > 1) {
-                new Masonry(grid, {
-                    itemSelector: '.card',
-                    columnWidth: '.grid-sizer',
-                    gutter: '.gutter-sizer',
-                    percentPosition: true,
-                });
+        new Chart(document.getElementById('positionsChart'), {
+            type: 'bar',
+            data: {
+                labels: [{% for position in top_positions %}"{{ position.title|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    label: 'Applications',
+                    data: [{% for position in top_positions %}{{ position.application_count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: '#d980a4',
+                    borderColor: '#3a0c23',
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        new Chart(document.getElementById('interestsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: [{% for interest in top_interests %}"{{ interest.interest__label|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    data: [{% for interest in top_interests %}{{ interest.candidate_count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: ['#3a0c23', '#d980a4', '#f5e642', '#9b284d', '#e9a2bd', '#6b3650', '#f8c9d8', '#c85c86']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        new Chart(document.getElementById('overlapChart'), {
+            type: 'bubble',
+            data: {
+                datasets: [
+                    {% for point in overlap_points %}
+                    {
+                        label: "{{ point.company|escapejs }}",
+                        data: [{ x: {{ point.interest_count }}, y: {{ point.overlap_count }}, r: {{ point.applications|add:6 }} }],
+                        backgroundColor: 'rgba(217,128,164,0.55)',
+                        borderColor: '#3a0c23'
+                    }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Company interest tags' } },
+                    y: { title: { display: true, text: 'Shared overlap count' } }
+                }
             }
         });
     </script>
+    {% else %}
+    <p>You do not have dashboard companies assigned yet.</p>
+    {% if is_candidate %}
+    {% include 'dash/my_applications.html' %}
+    {% endif %}
+    {% endif %}
+
+    <img src="{% static 'images/br1-cherry.png' %}" alt="cool line break" class="line-break">
 {% endblock %}

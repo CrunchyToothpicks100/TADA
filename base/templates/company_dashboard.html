@@ -1,0 +1,54 @@
+{% extends 'master.html' %}
+
+{% block title %}Company Dashboard{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <img src="{% static 'images/br3-cherry.png' %}" alt="cool line break" class="line-break">
+    <h2>{{ selected_company.title }} Dashboard
+        {% if is_super %} - Superuser
+        {% elif is_admin %} - Admin
+        {% elif is_staff %} - Staff
+        {% endif %}
+    </h2>
+
+    {% if is_staff %}
+        {% include 'dash/company_selector.html' %}
+
+        <div class="grid">
+            <div class="grid-sizer"></div>
+            <div class="gutter-sizer"></div>
+            {% include 'dash/job_postings.html' %}
+            {% if is_candidate %}
+            {% include 'dash/my_applications.html' %}
+            {% endif %}
+            {% include 'dash/submissions.html' %}
+            {% include 'dash/candidates_list.html' %}
+        </div>
+    {% endif %}
+
+    {% if is_candidate and not is_staff %}
+        <div class="grid">
+            <div class="grid-sizer"></div>
+            <div class="gutter-sizer"></div>
+            {% include 'dash/my_applications.html' %}
+        </div>
+    {% endif %}
+
+    <img src="{% static 'images/br1-cherry.png' %}" alt="cool line break" class="line-break">
+
+    <script>
+        document.querySelectorAll('.grid').forEach(function(grid) {
+            if (grid.querySelectorAll('.card').length > 1) {
+                new Masonry(grid, {
+                    itemSelector: '.card',
+                    columnWidth: '.grid-sizer',
+                    gutter: '.gutter-sizer',
+                    percentPosition: true,
+                });
+            }
+        });
+    </script>
+{% endblock %}

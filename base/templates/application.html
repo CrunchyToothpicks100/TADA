@@ -88,6 +88,23 @@
                     {% endif %}
                 </div>
 
+                <div class="form-group">
+                    <label>Interests</label>
+                    <div class="interest-cloud">
+                        {% for checkbox in form.interests %}
+                        <label class="interest-pill">
+                            {{ checkbox.tag }}
+                            <span>{{ checkbox.choice_label }}</span>
+                        </label>
+                        {% empty %}
+                        <span>No interest tags are available yet.</span>
+                        {% endfor %}
+                    </div>
+                    {% if form.interests.errors %}
+                    <span class="form-error">{{ form.interests.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
                 <div class="application-actions">
                     <button type="submit" class="medium-btn">Save and Continue</button>
                     <a href="{% url 'application_continue' %}?next={% url 'application' position.id 2 %}">Continue an existing application</a>

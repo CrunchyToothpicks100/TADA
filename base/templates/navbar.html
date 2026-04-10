@@ -1,7 +1,9 @@
 {% load static %}
 
 <nav class="navbar horiz-flex-space-between">
-  <img src="{% static 'images/TADA.png' %}">
+  <a href="/">
+    <img src="{% static 'images/TADA.png' %}" alt="TADA home">
+  </a>
   <ul class="nav-list">
     <li><a href="{% url 'careers' %}">Careers</a></li>
     ♦

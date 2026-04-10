@@ -6,7 +6,8 @@ from django.utils import timezone
 
 from base.models import (
     Answer, AnswerChoice, ApplicationToken, Candidate, CandidateInterest,
-    Company, CompanyStaff, Note, Position, Question, QuestionChoice, Submission,
+    Company, CompanyInterest, CompanyStaff, Interest, Note, Position, Question,
+    QuestionChoice, Submission, SubmissionNote,
 )
 
 
@@ -114,29 +115,71 @@ class Command(BaseCommand):
         self.stdout.write("  candidates ok")
 
         # ------------------------------------------------------------------ #
-        # CandidateInterest (5)
+        # Interests + CompanyInterest + CandidateInterest
         # ------------------------------------------------------------------ #
+        interest_labels = [
+            "Python",
+            "Backend Systems",
+            "Open Source",
+            "Marketing",
+            "Product Strategy",
+            "UX Research",
+            "Machine Learning",
+            "Data Engineering",
+            "DevOps",
+            "Cloud Infra",
+            "Test Automation",
+            "Cybersecurity",
+            "Penetration Testing",
+            "Threat Modelling",
+        ]
+        interests_by_label = {}
+        for label in interest_labels:
+            interest, _ = Interest.objects.get_or_create(
+                label=label,
+                defaults={"slug": label.lower().replace(" ", "-")},
+            )
+            interests_by_label[label] = interest
+
+        company_interest_map = {
+            companies[0]: ["Python", "Backend Systems", "Open Source", "Product Strategy", "UX Research"],
+            companies[1]: ["Machine Learning", "Data Engineering", "Python"],
+            companies[2]: ["DevOps", "Cloud Infra", "Test Automation", "Python"],
+            companies[3]: ["Cybersecurity", "Penetration Testing", "Threat Modelling"],
+            companies[4]: ["Backend Systems", "Open Source", "Cybersecurity"],
+        }
+        for company, labels in company_interest_map.items():
+            for label in labels:
+                CompanyInterest.objects.get_or_create(company=company, interest=interests_by_label[label])
+
         interest_data = [
-            {"candidate": candidates[0], "label": "Python",           "strength": 9},
-            {"candidate": candidates[0], "label": "Backend Systems",  "strength": 8},
-            {"candidate": candidates[0], "label": "Open Source",      "strength": 6},
-            {"candidate": candidates[1], "label": "Marketing",        "strength": 8},
+            {"candidate": candidates[0], "label": "Python", "strength": 9},
+            {"candidate": candidates[0], "label": "Backend Systems", "strength": 8},
+            {"candidate": candidates[0], "label": "Open Source", "strength": 6},
+            {"candidate": candidates[1], "label": "Marketing", "strength": 8},
             {"candidate": candidates[1], "label": "Product Strategy", "strength": 9},
-            {"candidate": candidates[1], "label": "UX Research",      "strength": 7},
+            {"candidate": candidates[1], "label": "UX Research", "strength": 7},
             {"candidate": candidates[2], "label": "Machine Learning", "strength": 10},
             {"candidate": candidates[2], "label": "Data Engineering", "strength": 8},
-            {"candidate": candidates[2], "label": "Python",           "strength": 9},
-            {"candidate": candidates[3], "label": "DevOps",           "strength": 7},
-            {"candidate": candidates[3], "label": "Cloud Infra",      "strength": 8},
-            {"candidate": candidates[3], "label": "Test Automation",  "strength": 9},
-            {"candidate": candidates[4], "label": "Cybersecurity",    "strength": 9},
+            {"candidate": candidates[2], "label": "Python", "strength": 9},
+            {"candidate": candidates[3], "label": "DevOps", "strength": 7},
+            {"candidate": candidates[3], "label": "Cloud Infra", "strength": 8},
+            {"candidate": candidates[3], "label": "Test Automation", "strength": 9},
+            {"candidate": candidates[4], "label": "Cybersecurity", "strength": 9},
             {"candidate": candidates[4], "label": "Penetration Testing", "strength": 10},
             {"candidate": candidates[4], "label": "Threat Modelling", "strength": 8},
         ]
         for d in interest_data:
             CandidateInterest.objects.get_or_create(
-                candidate=d["candidate"], label=d["label"],
-                defaults={"strength_1_to_10": d["strength"]},
+                candidate=d["candidate"],
+                label=d["label"],
+                defaults={
+                    "interest": interests_by_label[d["label"]],
+                    "strength_1_to_10": d["strength"],
+                },
+            )
+            CandidateInterest.objects.filter(candidate=d["candidate"], label=d["label"]).update(
+                interest=interests_by_label[d["label"]]
             )
         self.stdout.write("  interests ok")
 
@@ -311,6 +354,19 @@ class Command(BaseCommand):
         for d in note_data:
             Note.objects.get_or_create(candidate=d["candidate"], author=alice, body=d["body"])
         self.stdout.write("  notes ok")
+
+        submission_note_data = [
+            {"submission": submissions[0], "body": "Backend screen should focus on Django and scaling tradeoffs."},
+            {"submission": submissions[1], "body": "Promising PM profile. Ask about roadmap prioritization."},
+            {"submission": submissions[2], "body": "Very strong ML fit. Worth sharing with other data teams too."},
+        ]
+        for d in submission_note_data:
+            SubmissionNote.objects.get_or_create(
+                submission=d["submission"],
+                author=alice,
+                body=d["body"],
+            )
+        self.stdout.write("  submission notes ok")
 
         # ------------------------------------------------------------------ #
         # ApplicationTokens (5)
