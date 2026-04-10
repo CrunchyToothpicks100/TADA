@@ -1,0 +1,58 @@
+{% extends "master.html" %}
+
+{% block title %}TADA - Continue Application{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <img src="{% static 'images/br1-cherry.png' %}" alt="cool line break" class="line-break">
+    <h2 style="margin-bottom: 0;">Continue Application</h2>
+
+    <div class="application-shell">
+        <div class="card application-card">
+            <div class="card-header">
+                <div class="row-1">
+                    <span>Resume with Code</span>
+                </div>
+            </div>
+
+            <p class="application-intro">
+                Enter the email and 6-digit code from your application to jump back in.
+            </p>
+
+            {% if error_message %}
+            <div class="form-error-block">{{ error_message }}</div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            <div class="form-error-block">{{ form.non_field_errors|join:", " }}</div>
+            {% endif %}
+
+            <form method="POST" class="page-form application-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ form.email.value|default:'' }}" required>
+                    {% if form.email.errors %}
+                    <span class="form-error">{{ form.email.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="continue_code">6-Digit Code</label>
+                    <input type="text" id="continue_code" name="continue_code" value="{{ form.continue_code.value|default:'' }}" inputmode="numeric" maxlength="6" required>
+                    {% if form.continue_code.errors %}
+                    <span class="form-error">{{ form.continue_code.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="application-actions">
+                    <button type="submit" class="medium-btn">Continue</button>
+                    <a href="/login/">Use regular sign in instead</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

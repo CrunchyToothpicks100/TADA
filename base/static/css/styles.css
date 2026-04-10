@@ -66,6 +66,79 @@ button:hover {
     width: min(400px, 30%)
 }
 
+.application-shell {
+    width: min(760px, 92%);
+    margin: 0 auto 28px auto;
+}
+
+.application-card {
+    overflow: hidden;
+}
+
+.application-form {
+    width: min(560px, 100%);
+    margin: 0 auto;
+    padding: 22px 22px 26px 22px;
+}
+
+.application-note {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 18px;
+    background: #fff7d8;
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+}
+
+.application-note-standalone {
+    width: min(720px, 92%);
+    margin: 0 auto 16px auto;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+}
+
+.application-intro {
+    margin: 18px auto 0 auto;
+    width: min(560px, 100%);
+    text-align: left;
+    padding-inline: 22px;
+}
+
+.application-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.form-error-block {
+    width: min(560px, calc(100% - 44px));
+    margin: 18px auto 0 auto;
+    padding: 10px 12px;
+    text-align: left;
+    color: #8b102f;
+    background: #ffe7ee;
+    border: 1px solid #d980a4;
+    border-radius: 8px;
+}
+
+.form-help {
+    display: block;
+    text-align: left;
+    margin-top: 4px;
+    font-size: 0.85em;
+    color: #6b3650;
+}
+
+.form-group ul {
+    margin: 6px 0 0 0;
+    padding-left: 20px;
+    text-align: left;
+}
+
 .line-break {
     display: block;
     margin: 0 auto;
@@ -247,4 +320,32 @@ button:hover {
     font-size: 0.85em;
     display: block;
     margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+    .grid-sizer, .card {
+        width: 100%;
+    }
+
+    .gutter-sizer {
+        width: 0;
+    }
+
+    .page-form,
+    .application-form {
+        width: min(100%, 560px);
+    }
+
+    .application-note,
+    .application-actions,
+    .card-header .row-2,
+    .horiz-flex-space-between,
+    .horiz-flex {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-header .row-1 {
+        gap: 8px;
+    }
 }

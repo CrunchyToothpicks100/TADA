@@ -1,4 +1,3 @@
-{# My Applications — candidate's own submitted applications #}
 <div class="card">
     <div class="card-header">
         <span class="row-1">My Applications</span>
@@ -6,10 +5,10 @@
     <div class="list-group">
         {% for application in my_applications %}
         <div class="list-group-item">
-            <h5>{{ application.job_title }}</h5>
-            <p>Status: {{ application.status }}</p>
-            {# TODO: application_detail not yet implemented — see TODO.md #}
-            <div><a href="#" class="btn btn-primary">View Details</a></div>
+            <h5>{{ application.position.title }}</h5>
+            <p>Status: {{ application.get_status_display }}</p>
+            <p>{{ application.position.company.title }}</p>
+            <div><a href="{% url 'submission_detail' application.id %}">View Details</a></div>
         </div>
         {% empty %}
         <div class="list-group-item">You have not applied to any jobs yet.</div>

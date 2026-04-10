@@ -7,12 +7,23 @@
 {% block style %}
 {% endblock %}
 
+{% load static %}
+
 {% block content %}
-    <h2>Job Application Submitted!</h2>
+    <img src="{% static 'images/br1-cherry.png' %}" alt="cool line break" class="line-break">
+    <h2>Application Submitted</h2>
 
-    <p>Confirmation has been sent to your email address.</p>
+    {% if position_title %}
+    <p>Your application for <strong>{{ position_title }}</strong> is in.</p>
+    {% endif %}
 
-    <p>We appreciate your interest in joining our team. Our hiring team will carefully review your application and qualifications.</p>
+    {% if continue_code %}
+    <div class="application-note application-note-standalone">
+        <span>Continue code: <strong>{{ continue_code }}</strong></span>
+        <span>Use it with your email if you ever need to get back into your application.</span>
+    </div>
+    {% endif %}
 
-    <p>Thank you!</p>
+    <p>We appreciate your interest in joining our team. Our hiring team will review your application and qualifications.</p>
+    <p><a href="/dashboard/">Go to dashboard</a> or <a href="/careers/">browse more openings</a>.</p>
 {% endblock %}

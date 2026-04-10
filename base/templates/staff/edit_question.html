@@ -1,0 +1,59 @@
+{% extends 'master.html' %}
+
+{% block title %}TADA - Edit Question{% endblock %}
+
+{% block content %}
+    <h2>Edit Question</h2>
+
+    <p>
+        {% if position %}
+        <a href="{% url 'position_questions' position.id %}">Back to Position Questions</a>
+        {% else %}
+        <a href="{% url 'question_manager' %}?company_id={{ selected_company.id }}">Back to Company Questions</a>
+        {% endif %}
+    </p>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row-1">Question Details</div>
+        </div>
+        <form method="post" class="page-form application-form">
+            {% csrf_token %}
+            <input type="hidden" name="company_id" value="{{ selected_company.id }}">
+
+            <div class="application-note">
+                <span>Scope: <strong>{{ scope_label }}</strong></span>
+                <span>{% if question.is_active %}Active{% else %}Archived{% endif %}</span>
+            </div>
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="form-help">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <span class="form-error">{{ field.errors|join:", " }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="medium-btn">Save Changes</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row-1">Archive</div>
+        </div>
+        <div class="list-group">
+            <div class="list-group-item">
+                <form method="post" action="{% url 'archive_question' question.id %}">
+                    {% csrf_token %}
+                    <button type="submit">{% if question.is_active %}Archive{% else %}Restore{% endif %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

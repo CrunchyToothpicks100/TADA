@@ -138,6 +138,7 @@ class Candidate(models.Model):
 
     # freeform summary written by the candidate
     bio = models.TextField(blank=True)
+    continue_code = models.CharField(max_length=6, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

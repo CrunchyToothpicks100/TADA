@@ -1,4 +1,3 @@
-{# Job Postings — admins can create/edit; staff can only view #}
 <div class="card" id="job-postings-card">
     <div class="card-header">
         <div class="row-1">
@@ -6,12 +5,12 @@
             <span style="display: flex; gap: 8px;">
                 <button type="button" onclick="toggleJobFilters()">Filter</button>
                 {% if is_admin %}
+                <button type="button" onclick="location.href='{% url 'question_manager' %}{% if selected_company %}?company_id={{ selected_company.id }}{% endif %}'">Application Questions</button>
                 <button type="button" onclick="location.href='{% url 'add_position' %}{% if selected_company %}?company_id={{ selected_company.id }}{% endif %}'">New Position</button>
                 {% endif %}
             </span>
         </div>
 
-        {# Filter panel — hidden by default #}
         <div class="row-2" id="job-filters" style="display: none;">
             <label>
                 <input type="checkbox" id="filter-include-inactive" onchange="applyJobFilters()" checked>
@@ -42,7 +41,10 @@
             </h3>
             <p>{{ position.description }}</p>
             {% if is_admin %}
-            <div><a href="{% url 'edit_position' position.id %}">Edit</a></div>
+            <div class="horiz-flex">
+                <a href="{% url 'edit_position' position.id %}">Edit</a>
+                <a href="{% url 'position_questions' position.id %}">Questions</a>
+            </div>
             {% endif %}
         </div>
         {% empty %}
