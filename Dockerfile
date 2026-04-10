@@ -1,5 +1,5 @@
 # Use official Python image
-FROM python:3.14-slim
+FROM python:3.12-slim
 
 # Prevent Python from writing .pyc files
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -35,4 +35,4 @@ RUN echo "echo 'BASHRC loaded'" >> /root/.bashrc
 EXPOSE 8000
 
 # Run server
-CMD ["gunicorn", "TADA.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
