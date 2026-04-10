@@ -9,3 +9,4 @@ for model in app_models:
         admin.site.register(model)
     except admin.sites.AlreadyRegistered:
         pass
+

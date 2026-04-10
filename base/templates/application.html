@@ -8,70 +8,132 @@
 
 {% block content %}
     <img src="{% static 'images/br1-cherry.png' %}" alt="cool line break" class="line-break">
-    <h2>Job Application</h2>
+    <h2>{{ position.title }} Application</h2>
 
-    {% if page == 1 %}
-    <form method="POST" class="page-form">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="first_name">First Name: </label>
-            <input type="text" id="first_name" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
-            <!-- Added for forms.py implementation, minor error validation -->
-            {% if form.first_name.errors %}
-                <span class ="form-error">{{ form.first_name.errors|join:", "}}</span>
+    <div class="application-shell">
+        <div class="card application-card">
+            <div class="card-header">
+                <div class="row-1">
+                    <span>Application</span>
+                    <span>Page {{ page }}</span>
+                </div>
+                <div class="row-2">
+                    <span>{{ position.company.title }}</span>
+                    <span>{{ position.get_employment_type_display }}</span>
+                </div>
+            </div>
+
+            {% if continue_code %}
+            <div class="application-note">
+                <span>Continue code: <strong>{{ continue_code }}</strong></span>
+                <span>Use it with your email if you need to resume later.</span>
+            </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            <div class="form-error-block">
+                {{ form.non_field_errors|join:", " }}
+            </div>
+            {% endif %}
+
+            {% if page == 1 %}
+            <form method="POST" class="page-form application-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
+                    {% if form.first_name.errors %}
+                    <span class="form-error">{{ form.first_name.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
+                    {% if form.last_name.errors %}
+                    <span class="form-error">{{ form.last_name.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ form.email.value|default:'' }}" required>
+                    {% if form.email.errors %}
+                    <span class="form-error">{{ form.email.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" value="{{ form.phone.value|default:'' }}">
+                    {% if form.phone.errors %}
+                    <span class="form-error">{{ form.phone.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="linkedin_url">LinkedIn URL</label>
+                    <input type="url" id="linkedin_url" name="linkedin_url" value="{{ form.linkedin_url.value|default:'' }}">
+                    {% if form.linkedin_url.errors %}
+                    <span class="form-error">{{ form.linkedin_url.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Short Bio</label>
+                    <textarea id="bio" name="bio" rows="4">{{ form.bio.value|default:'' }}</textarea>
+                    {% if form.bio.errors %}
+                    <span class="form-error">{{ form.bio.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Interests</label>
+                    <div class="interest-cloud">
+                        {% for checkbox in form.interests %}
+                        <label class="interest-pill">
+                            {{ checkbox.tag }}
+                            <span>{{ checkbox.choice_label }}</span>
+                        </label>
+                        {% empty %}
+                        <span>No interest tags are available yet.</span>
+                        {% endfor %}
+                    </div>
+                    {% if form.interests.errors %}
+                    <span class="form-error">{{ form.interests.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="application-actions">
+                    <button type="submit" class="medium-btn">Save and Continue</button>
+                    <a href="{% url 'application_continue' %}?next={% url 'application' position.id 2 %}">Continue an existing application</a>
+                </div>
+            </form>
+            {% else %}
+            <form method="POST" class="page-form application-form">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <small class="form-help">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                    <span class="form-error">{{ field.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="application-intro">No extra questions yet. You can finish your application now.</p>
+                {% endfor %}
+
+                <div class="application-actions">
+                    <button type="submit" class="medium-btn">Submit Application</button>
+                    <a href="{% url 'application_continue' %}?next={% url 'application' position.id 2 %}">Resume later with your code</a>
+                </div>
+            </form>
             {% endif %}
         </div>
-
-        <div class="form-group">
-            <label for="last_name">Last Name: </label>
-            <input type="text" id="last_name" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
-            <!-- Added for forms.py implementation, minor error validation -->
-            {% if form.last_name.errors %}
-                <span class ="form-error">{{ form.last_name.errors|join:", "}}</span>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            <label for="email">Email: </label>
-            <input type="email" id="email" name="email" value="{{ form.email.value|default:'' }}" required>
-            <!-- Added for forms.py implementation, minor error validation -->
-            {% if form.email.errors %}
-                <span class ="form-error">{{ form.email.errors|join:", "}}</span>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            <label for="phone">Phone: </label>
-            <input type="tel" id="phone" name="phone" value="{{ form.phone.value|default:'' }}">
-            <!-- Added for forms.py implementation, minor error validation -->
-            {% if form.phone.errors %}
-                <span class ="form-error">{{ form.phone.errors|join:", "}}</span>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            <label for="linkedin_url">LinkedIn URL: </label>
-            <input type="url" id="linkedin_url" name="linkedin_url" value="{{ form.linkedin_url.value|default:'' }}">
-            <!-- Added for forms.py implementation, minor error validation -->
-            {% if form.linkedin_url.errors %}
-                <span class ="form-error">{{ form.linkedin_url.errors|join:", "}}</span>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            <label for="bio">Short Bio: </label>
-            <textarea id="bio" name="bio" rows="4">{{ form.bio.value|default:'' }}</textarea>
-            <!-- Added for forms.py implementation, minor error validation -->
-            {% if form.bio.errors %}
-                <span class ="form-error">{{ form.bio.errors|join:", "}}</span>
-            {% endif %}
-        </div>
-
-        <button type="submit">Submit Application</button>
-    </form>
-    {% elif page == 2 %}
-    <p>
-        Welcome to page 2!
-    </p>
-    {% endif %}
+    </div>
 {% endblock %}

@@ -138,6 +138,7 @@ class Candidate(models.Model):
 
     # freeform summary written by the candidate
     bio = models.TextField(blank=True)
+    continue_code = models.CharField(max_length=6, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -157,12 +158,45 @@ class Candidate(models.Model):
         return f"{self.first_name} {self.last_name}".strip() or self.email
 
 
+class Interest(models.Model):
+    slug = models.SlugField(unique=True)
+    label = models.CharField(max_length=120, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["label"]
+
+    def __str__(self):
+        return self.label
+
+
+class CompanyInterest(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="company_interests")
+    interest = models.ForeignKey(Interest, on_delete=models.CASCADE, related_name="company_interests")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["company", "interest"], name="uniq_company_interest"),
+        ]
+
+    def __str__(self):
+        return f"{self.company} -> {self.interest}"
+
+
 class CandidateInterest(models.Model):
     """
     Lightweight "interest graph" that makes cross-company matching easy.
     Examples: cars, guns, coffee, python, sportscars, etc.
     """
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name="interests")
+    interest = models.ForeignKey(
+        Interest,
+        on_delete=models.CASCADE,
+        related_name="candidate_interests",
+        null=True,
+        blank=True,
+    )
     label = models.CharField(max_length=120)  # e.g. "Cars", "Guns", "Python"
     strength_1_to_10 = models.PositiveSmallIntegerField()
 
@@ -181,7 +215,7 @@ class CandidateInterest(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.candidate} -> {self.label}"
+        return f"{self.candidate} -> {self.interest.label if self.interest_id else self.label}"
 
 
 class Note(models.Model):
@@ -460,6 +494,26 @@ class AnswerChoice(models.Model):
 
     def __str__(self):
         return f"{self.answer_id}:{self.choice_id}"
+
+
+class SubmissionNote(models.Model):
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="notes")
+    author = models.ForeignKey(
+        "auth.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="submission_notes",
+    )
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    edited_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Note by {self.author} on submission {self.submission_id}"
 
 
 class ApplicationToken(models.Model):

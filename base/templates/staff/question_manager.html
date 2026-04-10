@@ -1,0 +1,185 @@
+{% extends 'master.html' %}
+
+{% block title %}TADA - Application Questions{% endblock %}
+
+{% block content %}
+    <h2>
+        {% if position %}
+            {{ position.title }} Questions
+        {% else %}
+            {{ selected_company.title }} Application Questions
+        {% endif %}
+    </h2>
+
+    <p>
+        <a href="{% url 'company_dashboard' %}?company_id={{ selected_company.id }}">Back to Dashboard</a>
+        {% if position %}
+        | <a href="{% url 'edit_position' position.id %}">Back to Position</a>
+        {% endif %}
+    </p>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row-1">Question Summary</div>
+        </div>
+        <div class="list-group">
+            <div class="list-group-item">
+                <strong>Global active:</strong> {{ summary_counts.global_active }}
+            </div>
+            <div class="list-group-item">
+                <strong>{{ selected_company.title }} active:</strong> {{ summary_counts.company_active }}
+            </div>
+            {% if position %}
+            <div class="list-group-item">
+                <strong>{{ position.title }} active:</strong> {{ summary_counts.position_active }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row-1">Add Question</div>
+        </div>
+        <form method="post" class="page-form application-form">
+            {% csrf_token %}
+            <input type="hidden" name="company_id" value="{{ selected_company.id }}">
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="form-help">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <span class="form-error">{{ field.errors|join:", " }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="medium-btn">Create Question</button>
+        </form>
+    </div>
+
+    {% if position %}
+    <div class="card">
+        <div class="card-header">
+            <div class="row-1">Inherited Questions</div>
+        </div>
+        <div class="list-group">
+            {% for question in inherited_questions %}
+            <div class="list-group-item">
+                <strong>{{ question.prompt }}</strong>
+                <div>
+                    {% if question.position_id %}
+                        Position-specific
+                    {% elif question.company_id %}
+                        Company-wide
+                    {% else %}
+                        Global
+                    {% endif %}
+                    | Page {{ question.page }}
+                    | {{ question.get_question_type_display }}
+                    {% if not question.is_active %}| Archived{% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="list-group-item">No inherited questions for this position.</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row-1">Global Questions</div>
+        </div>
+        <div class="list-group">
+            {% for question in global_questions %}
+            <div class="list-group-item">
+                <strong>{{ question.prompt }}</strong>
+                <div>Page {{ question.page }} | {{ question.get_question_type_display }}{% if not question.is_active %} | Archived{% endif %}</div>
+                {% if question.choices.all %}
+                <div>
+                    {% for choice in question.choices.all %}
+                    {{ choice.label }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="horiz-flex">
+                    <a href="{% url 'edit_question' question.id %}">Edit</a>
+                    <form method="post" action="{% url 'archive_question' question.id %}">
+                        {% csrf_token %}
+                        <button type="submit">{% if question.is_active %}Archive{% else %}Restore{% endif %}</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="list-group-item">No global questions yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row-1">{{ selected_company.title }} Questions</div>
+        </div>
+        <div class="list-group">
+            {% for question in company_questions %}
+            <div class="list-group-item">
+                <strong>{{ question.prompt }}</strong>
+                <div>Page {{ question.page }} | {{ question.get_question_type_display }}{% if not question.is_active %} | Archived{% endif %}</div>
+                {% if question.choices.all %}
+                <div>
+                    {% for choice in question.choices.all %}
+                    {{ choice.label }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="horiz-flex">
+                    <a href="{% url 'edit_question' question.id %}">Edit</a>
+                    <form method="post" action="{% url 'archive_question' question.id %}">
+                        {% csrf_token %}
+                        <button type="submit">{% if question.is_active %}Archive{% else %}Restore{% endif %}</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="list-group-item">No company-wide questions yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if position %}
+    <div class="card">
+        <div class="card-header">
+            <div class="row-1">{{ position.title }} Questions</div>
+        </div>
+        <div class="list-group">
+            {% for question in position_questions %}
+            <div class="list-group-item">
+                <strong>{{ question.prompt }}</strong>
+                <div>Page {{ question.page }} | {{ question.get_question_type_display }}{% if not question.is_active %} | Archived{% endif %}</div>
+                {% if question.choices.all %}
+                <div>
+                    {% for choice in question.choices.all %}
+                    {{ choice.label }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="horiz-flex">
+                    <a href="{% url 'edit_question' question.id %}">Edit</a>
+                    <form method="post" action="{% url 'archive_question' question.id %}">
+                        {% csrf_token %}
+                        <button type="submit">{% if question.is_active %}Archive{% else %}Restore{% endif %}</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="list-group-item">No position-specific questions yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

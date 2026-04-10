@@ -7,7 +7,13 @@
 <div class="card">
     <div class="card-header">
         <div class="row-1">
-            <span>{{ submission.candidate }} — {{ submission.position }}</span>
+            <span>
+                {% if is_candidate_owner and not is_staff %}
+                    My Application
+                {% else %}
+                    {{ submission.candidate }} - {{ submission.position }}
+                {% endif %}
+            </span>
             <span>Status: {{ submission.get_status_display }}</span>
         </div>
     </div>
@@ -16,10 +22,13 @@
             <strong>Candidate:</strong> {{ submission.candidate.first_name }} {{ submission.candidate.last_name }}
         </div>
         <div class="list-group-item">
-            <strong>Email:</strong> {{ submission.candidate.email }}
+            <strong>Email:</strong> <a href="mailto:{{ submission.candidate.email }}">{{ submission.candidate.email }}</a>
         </div>
         <div class="list-group-item">
             <strong>Position:</strong> {{ submission.position }}
+        </div>
+        <div class="list-group-item">
+            <strong>Company:</strong> {{ submission.position.company.title }}
         </div>
         <div class="list-group-item">
             <strong>Submitted:</strong> {{ submission.created_at }}
@@ -27,6 +36,21 @@
         {% if submission.finished_at %}
         <div class="list-group-item">
             <strong>Finished:</strong> {{ submission.finished_at }}
+        </div>
+        {% endif %}
+        {% if submission.candidate.phone %}
+        <div class="list-group-item">
+            <strong>Phone:</strong> <a href="tel:{{ submission.candidate.phone }}">{{ submission.candidate.phone }}</a>
+        </div>
+        {% endif %}
+        {% if submission.candidate.linkedin_url %}
+        <div class="list-group-item">
+            <strong>LinkedIn:</strong> <a href="{{ submission.candidate.linkedin_url }}">{{ submission.candidate.linkedin_url }}</a>
+        </div>
+        {% endif %}
+        {% if submission.candidate.bio %}
+        <div class="list-group-item">
+            <strong>Bio:</strong> {{ submission.candidate.bio }}
         </div>
         {% endif %}
     </div>
@@ -78,6 +102,42 @@
 </div>
 {% endif %}
 
-<p><a href="{% url 'dashboard' %}">Back to Dashboard</a></p>
+{% if is_admin_reviewer %}
+<div class="card">
+    <div class="card-header">
+        <span class="row-1">Admin Notes</span>
+    </div>
+    <div class="list-group">
+        {% for note in notes %}
+        <div class="list-group-item">
+            <strong>{{ note.author|default:"Unknown admin" }}</strong>
+            <div>{{ note.created_at }}</div>
+            <p>{{ note.body }}</p>
+        </div>
+        {% empty %}
+        <div class="list-group-item">No admin notes yet.</div>
+        {% endfor %}
+    </div>
+    <form method="post" class="page-form application-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ note_form.body.id_for_label }}">Add Note</label>
+            {{ note_form.body }}
+            {% if note_form.body.errors %}
+            <span class="form-error">{{ note_form.body.errors|join:", " }}</span>
+            {% endif %}
+        </div>
+        <button type="submit" class="medium-btn">Save Note</button>
+    </form>
+</div>
+{% endif %}
+
+<p>
+    {% if is_staff %}
+    <a href="{% url 'company_dashboard' %}?company_id={{ submission.position.company_id }}">Back to Company Dashboard</a>
+    {% else %}
+    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+    {% endif %}
+</p>
 
 {% endblock %}
