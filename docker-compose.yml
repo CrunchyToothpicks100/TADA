@@ -4,6 +4,7 @@ services:
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      - ./testing:/tmp/testing
     environment:
       POSTGRES_DB: tada
       POSTGRES_USER: tadauser
