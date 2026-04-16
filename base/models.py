@@ -448,7 +448,19 @@ class Answer(models.Model):
 
 class AnswerChoice(models.Model):
     """
-    Multi-select bridge table.
+    Multi-select bridge table. One row per selected option for TYPE_MULTI answers.
+
+    For a multi-choice question, the parent Answer row's value columns (int_value,
+    bool_value, text_value, choice) are all blank/null — it exists solely as a
+    grouping key that ties a set of selections back to a (Submission, Question) pair.
+
+    This indirection is intentional:
+      - Keeps the query interface uniform: all answered questions are found via Answer,
+        regardless of type.
+      - The uniq_submission_question_answer constraint on Answer enforces that a
+        submission answers each question exactly once, covering multi-choice for free.
+      - Answer.created_at records when the question was answered without duplicating
+        that metadata across every AnswerChoice row.
     """
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name="multi_choices")
     choice = models.ForeignKey(QuestionChoice, on_delete=models.CASCADE, related_name="multi_selected_in")
