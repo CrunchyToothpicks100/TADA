@@ -32,12 +32,25 @@ cd TADA
 
 ### 4. Environment variables
 
-Copy this into a new file called '.env'
+Copy `.env.example` into a new file called `.env`, then replace the secret and
+database password values.
 
 ```
 SECRET_KEY="copy_key_here"
 DEBUG="False"
-DATABASE_URL="postgres://tadauser:tadapw@db:5432/tada"
+ALLOWED_HOSTS="tada.fbstudios.com,localhost,127.0.0.1,192.168.22.170"
+CSRF_TRUSTED_ORIGINS="https://tada.fbstudios.com"
+SECURE_SSL_REDIRECT="True"
+SECURE_HSTS_SECONDS="31536000"
+SECURE_HSTS_INCLUDE_SUBDOMAINS="False"
+SECURE_HSTS_PRELOAD="False"
+SESSION_COOKIE_SECURE="True"
+CSRF_COOKIE_SECURE="True"
+TADA_WEB_BIND="127.0.0.1"
+TADA_WEB_PORT="8017"
+POSTGRES_DB="tada"
+POSTGRES_USER="tadauser"
+POSTGRES_PASSWORD="copy_strong_password_here"
 ```
 
 Go to https://djecrety.ir/ and create a new Django key
@@ -53,35 +66,21 @@ docker compose build
 docker compose up -d
 ```
 
-You should see your docker containers in VS Code and in your Docker Desktop
+The web container runs `collectstatic`, applies migrations, and starts gunicorn.
+By default, it binds to `127.0.0.1:8017` so nginx on the same server can proxy to
+it without exposing the app directly or colliding with common host ports.
 
-### 6. Run migrations
-
-This will open a shell inside the container
-
-```
-docker exec -it tada-web-1 bash
-pymg makemigrations base
-pymg migrate
-```
-
-### 7. Create sample data
+### 6. Create sample data
 
 Run this
 
 ```
-python manage.py create_cand_data
+docker compose exec web python manage.py create_sample_data
 ```
 
-And then exit the container shell
+### 7. Test
 
-```
-exit
-```
-
-### 8. Test
-
-Visit localhost:8000 in your browser to see if it's working
+Visit localhost:8017 in your browser to see if it's working
 
 # Notes
 
@@ -97,4 +96,4 @@ Edit HTML files in TADA\candidates\templates
 
 Useful website: https://www.w3schools.com/django/index.php
 
-Make sure DEBUG is false and ALLOWED_HOSTS is configured bfore deploying!
+Make sure DEBUG is false and ALLOWED_HOSTS is configured before deploying!
